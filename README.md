@@ -35,7 +35,7 @@ Relieve is based on a design pattern containing:
 
 ![](https://raw.githubusercontent.com/soyuka/relieve/master/examples/images/relieve.jpg)
 
-The task can be use without a Worker, but the Worker helps managing workflows.
+The task can be used without a Worker, but the Worker helps managing workflows.
 
 ### Task
 
