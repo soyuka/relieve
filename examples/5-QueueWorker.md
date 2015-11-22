@@ -11,8 +11,10 @@ var ScriptTask = relieve.tasks.ScriptTask
 var QueueWorker = relieve.workers.QueueWorker
 
 var worker = new QueueWorker({concurrency: 10})
-worker.add(new ScriptTask('sometask.js'))
-worker.add(new ScriptTask('sometask.js'))
+
+worker
+.add(new ScriptTask('sometask.js'))
+.add(new ScriptTask('sometask.js'))
 
 worker.run()
 //each task has exit, we can remove them from the worker
