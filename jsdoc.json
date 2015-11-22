@@ -1,0 +1,19 @@
+{
+  "source": {
+   "include": [ "./src" ]
+  },
+  "opts": {
+    "recurse": true,
+    "destination": "./docs",
+    "tutorials": "./examples",
+    "readme": "./README.md"
+  },
+  "templates": {
+    "default": {
+      "staticFiles": {
+        "include": ["./examples/images/"]
+      } 
+    } 
+  },
+  "plugins": ["plugins/markdown"]
+}
