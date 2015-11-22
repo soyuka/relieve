@@ -117,8 +117,11 @@ CloudWorker.prototype.call = getOrCallNext('call')
 CloudWorker.prototype.run = function() {
   let stack = []
   for(let task of this.tasks.values()) {
-   let s = task.start()
-   .then(e => this.strategy.push(task.name))
+    if(task.running === true)
+      continue;
+
+    let s = task.start()
+    .then(e => this.strategy.push(task.name))
 
    stack.push(s) 
   }

@@ -12,7 +12,7 @@ var worker = new Worker()
 let i = 0
 let len = 4
 for (; i < len; i++) {
-  let task = new CallableTask(__dirname + '/task.js')
+  let task = new CallableTask(__dirname + '/task.js', {restart: true})
   task.name = 'task'+i
   worker.add(task)
 }
@@ -29,6 +29,6 @@ server.on('connection', function(socket) {
   })
 })
 
-server.listen(2333, function() {
+server.listen(function() {
   console.log('server listening on %j', server.address());  
 })

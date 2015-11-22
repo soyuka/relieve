@@ -45,10 +45,9 @@ describe('CloudWorker', function() {
     })
   })
 
-  it('should add and run three tasks', function() {
+  it('should add and run two tasks', function() {
     
-    var tasks = [
-      new CallableTask(fixtures + '/server.js'),
+    let tasks = [
       new CallableTask(fixtures + '/server.js'),
       new CallableTask(fixtures + '/server.js')
     ]
@@ -59,6 +58,14 @@ describe('CloudWorker', function() {
       tasks[i].name = 'test'+i 
       worker.add(tasks[i])
     }
+
+    return worker.run()
+  })
+
+  it('should add and start a third one', function() {
+    let task = new CallableTask(fixtures + '/server.js')
+    task.name = 'test3'
+    worker.add(task) 
 
     return worker.run()
   })
