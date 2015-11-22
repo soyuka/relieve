@@ -1,0 +1,16 @@
+{
+  "name": "gulp-relieve",
+  "version": "1.0.0",
+  "description": "Execute gulp tasks in separated processes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Antoine Bluchet <soyuka@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "gulp": "^3.9.0",
+    "minimist": "^1.2.0"
+  }
+}
