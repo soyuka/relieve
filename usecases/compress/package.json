@@ -1,14 +1,14 @@
 {
   "name": "compress",
   "version": "1.0.0",
-  "description": "",
-  "main": "task.js",
+  "description": "Make zip in separated processes",
+  "main": "worker.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Antoine Bluchet <soyuka@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "archiver": "^0.16.0"
   }
