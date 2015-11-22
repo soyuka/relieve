@@ -1,7 +1,5 @@
 'use strict';
-var assert = require('assert')
 var IPCEE = require('ipcee')
-var p = require('path')
 
 /**
  * Script container

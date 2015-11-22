@@ -1,4 +1,4 @@
-## Relieve
+## Relieve [![Test Coverage](https://codeclimate.com/github/soyuka/relieve/badges/coverage.svg)](https://codeclimate.com/github/soyuka/relieve/coverage) [![Code Climate](https://codeclimate.com/github/soyuka/relieve/badges/gpa.svg)](https://codeclimate.com/github/soyuka/relieve) [![Build Status](https://travis-ci.org/soyuka/relieve.svg?branch=master)](https://travis-ci.org/soyuka/relieve)
 
 The goal of this library is to ease the implementation of multi threading accross your existing microservices.
 Relieve aims to give a reusable design pattern using process forks. It also eases communication with child processes with an high-level abstraction.
