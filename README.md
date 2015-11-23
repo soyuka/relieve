@@ -11,6 +11,10 @@ For example, with a CallableTask:
 module.exports = {
   print: function(str) = {
     console.log(str)
+  },
+  data: function() {
+    //return some async data
+    return Promise.resolve({foo: 'bar'})
   }
 }
 ```
@@ -24,6 +28,10 @@ var task = new ScriptTask('task.js')
 task.start()
 .then(function() {
   task.call('print', 'hello world')
+  task.get('data')
+  .then(d => {
+    //d is {foo: 'bar'}
+  })
 })
 ```
 
