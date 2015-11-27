@@ -1,6 +1,5 @@
 'use strict';
 var assert = require('assert')
-var IPCEE = require('ipcee')
 var p = require('path')
 
 /**
@@ -13,24 +12,9 @@ var p = require('path')
  */
 const SCRIPT_OBJECT_ERROR = 'Script is not an object'
 
-process.argv = process.argv.map(function(e, i) {
-  if(i < 3)
-    return e
-
-  return JSON.parse(e)
-})
-
-var args = [].slice.call(process.argv, 2)
-
-var opts = args.pop()
-
-var ipc = IPCEE(process, opts)
-
-var script = require(args[0])
-
-if(typeof script == 'object' && typeof script.setChannel == 'function') {
-  script.setChannel(ipc)
-}
+var container = require('./ScriptContainer.js')
+var script = container.script
+var ipc = container.ipc
 
 /**
  * Adds a stack trace to the error event
@@ -93,13 +77,3 @@ var get = function(/*key, ...data*/) {
 }
 
 ipc.on('get', get)
-
-process.on('uncaughtException', function(err) {
-  ipc.send('error', err.toString(), err.stack)
-
-  process.nextTick(function() {
-    process.exit(1) 
-  })
-})
-
-ipc.send('start')

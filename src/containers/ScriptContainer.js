@@ -40,3 +40,5 @@ process.on('uncaughtException', function(err) {
 })
 
 ipc.send('start')
+
+module.exports = {script: script, ipc: ipc}
