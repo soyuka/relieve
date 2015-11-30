@@ -21,6 +21,9 @@ var ipc = IPCEE(process, opts)
 
 var script = require(args[0])
 
+if(typeof script == 'function')
+  script = new script
+
 if(typeof script == 'object' && typeof script.setChannel == 'function') {
   script.setChannel(ipc)
 }
