@@ -37,10 +37,10 @@ var call = function(/*method, ...data*/) {
   let method = args.shift()
 
   if(typeof script != 'object')
-    return error(SCRIPT_OBJECT_ERROR)
+    return error(new Error(SCRIPT_OBJECT_ERROR))
 
   if(typeof script[method] != 'function')
-    return error(`Method ${method} is not a function`)
+    return error(new Error(`Method ${method} is not a function`))
 
   script[method].apply(script, args)
 }
@@ -61,7 +61,7 @@ var get = function(/*key, ...data*/) {
   let method = args.shift()
 
   if(typeof script != 'object')
-    return error(SCRIPT_OBJECT_ERROR)
+    return error(new Error(SCRIPT_OBJECT_ERROR))
 
   if(typeof script[method] == 'function') {
     return Promise.resolve(script[method]())
