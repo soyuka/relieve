@@ -64,7 +64,7 @@ var get = function(/*key, ...data*/) {
     return error(new Error(SCRIPT_OBJECT_ERROR))
 
   if(typeof script[method] == 'function') {
-    return Promise.resolve(script[method]())
+    return Promise.resolve(script[method].apply(script, args))
     .then(function() {
       let args = [].slice.call(arguments)
       args.unshift(uid)
