@@ -1,6 +1,6 @@
 {
   "name": "relieve",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Ease the implementation of multi threading accross your microservices",
   "main": "index.js",
   "scripts": {
