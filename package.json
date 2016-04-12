@@ -1,7 +1,7 @@
 {
   "name": "relieve",
   "version": "1.0.2",
-  "description": "Ease the implementation of multi threading accross your microservices",
+  "description": "Ease the implementation of multi processing accross your microservices",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
