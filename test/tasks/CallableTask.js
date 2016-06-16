@@ -8,6 +8,15 @@ describe('CallableTask', function() {
    return task.start()
   })
 
+  it('should create an autorestart callable task', function(cb) {
+   task = new CallableTask(p.resolve(__dirname, '../fixtures/script.js'), {restart: true})
+
+   task.once('restart', cb)
+
+   task.start()
+   .then(() => task.kill())
+  })
+
   it('should create a new CallableTask without constructor', function() {
    task = CallableTask(p.resolve(__dirname, '../fixtures/script.js'), {})
    return task.start()
@@ -32,6 +41,13 @@ describe('CallableTask', function() {
     return task.get('name')
     .then(function(response) {
       expect(response).to.equal('script')
+    })
+  })
+
+  it('should get the args', function() {
+    return task.get('getMe', 'hello')
+    .then(function(response) {
+      expect(response).to.equal('hello')
     })
   })
 

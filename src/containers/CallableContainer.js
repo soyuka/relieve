@@ -58,9 +58,9 @@ function get(key, method, ...args) {
     return error(new Error(SCRIPT_OBJECT_ERROR))
 
   if(typeof script[method] == 'function') {
-    return Promise.resolve(script[method]())
+    return Promise.resolve(script[method].apply(script, args))
     .then((...args) => {
-      args.unshift(key)
+      args.unshift(uid)
 
       ipc.send.apply(ipc, args)
     })
