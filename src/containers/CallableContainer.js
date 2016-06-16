@@ -1,6 +1,6 @@
-'use strict';
-var assert = require('assert')
-var p = require('path')
+'use strict'
+const assert = require('assert')
+const p = require('path')
 
 /**
  * Callable script container
@@ -12,9 +12,9 @@ var p = require('path')
  */
 const SCRIPT_OBJECT_ERROR = 'Script is not an object'
 
-var container = require('./ScriptContainer.js')
-var script = container.script
-var ipc = container.ipc
+const container = require('./ScriptContainer.js')
+const script = container.script
+const ipc = container.ipc
 
 /**
  * Adds a stack trace to the error event
@@ -27,15 +27,12 @@ function error(error) {
 
 /**
  * Is used for long jobs, don't expect an answer
- * @param {String} method method 
- * @param {arguments} ...data
+ * @param {String} method method
+ * @param {arguments} ...args
  * @example
  * ipc.send('call', 'method', args...)
  */
-var call = function(/*method, ...data*/) {
-  let args = [].slice.call(arguments)
-  let method = args.shift()
-
+function call(method, ...args) {
   if(typeof script != 'object')
     return error(new Error(SCRIPT_OBJECT_ERROR))
 
@@ -49,31 +46,27 @@ ipc.on('call', call)
 
 /**
  * Like Call but we send data back
- * The parent process listens on the uniqueid-event 
+ * The parent process listens on the uniqueid-event
  * @param {String} key key
- * @param {arguments} ...data
+ * @param {String} method key
+ * @param {arguments} ...args
  * @example
  * ipc.send('get', 'uniqueid-event', 'info')
  */
-var get = function(/*key, ...data*/) {
-  let args = [].slice.call(arguments)
-  let uid = args.shift()
-  let method = args.shift()
-
+function get(key, method, ...args) {
   if(typeof script != 'object')
     return error(new Error(SCRIPT_OBJECT_ERROR))
 
   if(typeof script[method] == 'function') {
     return Promise.resolve(script[method]())
-    .then(function() {
-      let args = [].slice.call(arguments)
-      args.unshift(uid)
+    .then((...args) => {
+      args.unshift(key)
 
       ipc.send.apply(ipc, args)
     })
   }
 
-  ipc.send.apply(ipc, [uid, script[method]])
+  ipc.send.apply(ipc, [key, script[method]])
 }
 
 ipc.on('get', get)

@@ -1,11 +1,10 @@
-'use strict';
-var Promise = require('bluebird')
-var readOnly = require('../utils/readOnly.js')
-var listenersPropagation = require('../utils/listenersPropagation.js')
-var uuid = require('uuid')
-var util = require('util')
-var EventEmitter = require('eventemitter2').EventEmitter2
-var debug = require('debug')('relieve:worker')
+'use strict'
+const readOnly = require('../utils/readOnly.js')
+const listenersPropagation = require('../utils/listenersPropagation.js')
+const uuid = require('uuid')
+const util = require('util')
+const EventEmitter = require('eventemitter2').EventEmitter2
+const debug = require('debug')('relieve:worker')
 
 /**
  * A basic Worker
@@ -27,14 +26,13 @@ function Worker(options) {
  * @member Map
  * @static
  */
-var tasks = new Map()
+const tasks = new Map()
 
 /**
  * send a message on every task
  * @return {Promise} resolves when every task received the message
  */
-Worker.prototype.send = function() {
-  let args = [].slice.call(arguments)
+Worker.prototype.send = function(...args) {
   let stack = []
 
   for(let task of tasks.values()) {
@@ -56,7 +54,7 @@ Worker.prototype.send = function() {
 Worker.prototype.onExit = function(name) {
   return function(code) {
     debug('Task %s exit with code %d', name, code)
-    tasks.delete(name) 
+    tasks.delete(name)
   }
 }
 
@@ -112,10 +110,9 @@ readOnly(Worker, 'tasks', function() {
 
 listenersPropagation(Worker, function replicateListener(method) {
   return function() {
-    let args = [].slice.call(arguments)
     for(let task of tasks.values()) {
       debug('Register event %s on every task', method)
-      task[method].apply(task, arguments) 
+      task[method].apply(task, arguments)
     }
   }
 })

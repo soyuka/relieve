@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 /**
  * The Weighted Strategy for the CloudWorker
- * Increments a number when each task gets called, 
+ * Increments a number when each task gets called,
  * the next task will get the one with the lowest score
  *
  * This strategy resides in memory and resolves promises to be used with
@@ -63,7 +63,7 @@ module.exports = {
    * @return {Promise} Resolves the task name
    */
   next: function() {
-   this.queue.sort((a, b) => a.score - b.score) 
+   this.queue.sort((a, b) => a.score - b.score)
 
    return Promise.resolve(this.queue[0].name)
   }

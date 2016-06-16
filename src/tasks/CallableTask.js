@@ -1,8 +1,8 @@
-'use strict';
-var ScriptTask = require('./ScriptTask.js')
-var p = require('path')
-var uuid = require('uuid')
-var util = require('util')
+'use strict'
+const ScriptTask = require('./ScriptTask.js')
+const p = require('path')
+const uuid = require('uuid')
+const util = require('util')
 
 /**
  * A Callable Script Task
@@ -34,18 +34,15 @@ util.inherits(CallableTask, ScriptTask)
 
 /**
  * Call a script method without expecting an answer
- * @param {String} method
- * @param {Mixed} ...arguments 
+ * @param {Mixed} ...arguments
  * @return Promise resolve when message has reach destination
  */
-CallableTask.prototype.call = function(/*method, arguments*/) {
-  let args = [].slice.call(arguments)
+CallableTask.prototype.call = function(...args) {
   args.unshift('call')
 
-  let self = this
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     args.push(resolve)
-    self.channel.send.apply(self.channel, args)
+    this.channel.send.apply(this.channel, args)
   })
 }
 
@@ -54,22 +51,17 @@ CallableTask.prototype.call = function(/*method, arguments*/) {
  *
  * The {@link module:containers/CallableContainer Callable Container} is handling functions, promises
  * and simple getters
- * @param {String} method
  * @param {Mixed} ...arguments
  * @return {Promise<...data>} resolves on answer
  */
-CallableTask.prototype.get = function(/*method, arguments*/) {
-  let args = [].slice.call(arguments)
+CallableTask.prototype.get = function(...args) {
   let uniqueCallback = uuid.v4()
   args.unshift(uniqueCallback)
   args.unshift('get')
 
-  let self = this
-
-  return new Promise(function(resolve, reject) {
-    self.channel.once(uniqueCallback, resolve)
-
-    self.channel.send.apply(self.channel, args)
+  return new Promise((resolve, reject) => {
+    this.channel.once(uniqueCallback, resolve)
+    this.channel.send.apply(this.channel, args)
   })
 }
 

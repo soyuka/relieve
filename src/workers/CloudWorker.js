@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 var util = require('util')
 var Worker = require('./Worker.js')
 var Promise = require('bluebird')
@@ -59,39 +59,36 @@ CloudWorker.prototype.add = function(task) {
  * @param {Arguments} ...args
  * @return Promise
  */
-CloudWorker.prototype.send = function() {
-  let args = [].slice.call(arguments)
-  let self = this
+CloudWorker.prototype.send = function(...args) {
   return this.strategy.next()
-  .then(function(name) {
-    let task = self.tasks.get(name)
+  .then((name) => {
+    let task = this.tasks.get(name)
     return task.send.apply(task, args)
   })
 }
 
 function getOrCallNext(method) {
-  return function() {
-    let args = [].slice.call(arguments)
-    let self = this
+  return function(...args) {
+    let task
 
     return this.strategy.next()
-    .then(function(name) {
-      let task = self.task(name)
+    .then((name) => {
+      task = this.task(name)
 
       if(!(method in task))
         return Promise.reject(new ReferenceError(`The task has no '${method}' method`))
 
-      return self.strategy.start(name)
-      .then(function() {
-        return task[method].apply(task, args)
-      })
-      .then(function() {
-        let args = [].slice.call(arguments)
-        return self.strategy.end(task.name)
-        .then(function() {
-          return Promise.resolve.apply(Promise, args)
-        })
-      })
+      return this.strategy.start(name)
+    })
+    .then(() => {
+      return task[method].apply(task, args)
+    })
+    .then((...newArgs) => {
+      args = newArgs
+      return this.strategy.end(task.name)
+    })
+    .then(() => {
+      return Promise.resolve.apply(Promise, args)
     })
   }
 }
@@ -123,7 +120,7 @@ CloudWorker.prototype.run = function() {
     let s = task.start()
     .then(e => this.strategy.push(task.name))
 
-   stack.push(s) 
+   stack.push(s)
   }
 
   return Promise.all(stack)

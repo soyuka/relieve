@@ -1,8 +1,8 @@
-'use strict';
-var util = require('util')
-var Worker = require('./Worker.js')
-var Promise = require('bluebird')
-var debug = require('debug')('relieve:seriesworker')
+'use strict'
+const util = require('util')
+const Worker = require('./Worker.js')
+const Promise = require('bluebird')
+const debug = require('debug')('relieve:seriesworker')
 
 /**
  * A Queue Worker that process ending tasks in concurrency
@@ -51,15 +51,14 @@ Object.defineProperty(QueueWorker.prototype, 'concurrency', {
 })
 
 /**
- * Runs tasks in the stack 
+ * Runs tasks in the stack
  * Tasks must exit to fullfil the promise, they run in concurrency
  * @see options.concurrency
  * @param Task ...tasks if none provided the whole stack will run
  * @return Promise resolves when every task exited
  */
-QueueWorker.prototype.run = function(/**...tasks**/) {
+QueueWorker.prototype.run = function(...args) {
   let stack = []
-  let args = [].slice.call(arguments)
 
   if(args.length === 0)
     stack = this.tasks.values()
@@ -71,12 +70,12 @@ QueueWorker.prototype.run = function(/**...tasks**/) {
 
   return Promise.all(stack).map(function(e) {
     return e.start()
-    .then(function() {
-      return new Promise(function(resolve, reject) {
+    .then(() => {
+      return new Promise((resolve, reject) => {
         debug('start task %s', e.name);
         e.once('exit', function(code) {
           debug('exit task %s', e.name);
-          resolve(code) 
+          resolve(code)
         })
       })
     })

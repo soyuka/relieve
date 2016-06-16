@@ -1,13 +1,13 @@
 'use strict';
-var child_process = require('child_process')
-var Promise = require('bluebird')
-var IPCEE = require('ipcee')
-var p = require('path')
-var util = require('util')
-var defineNameProperty = require('../utils/defineNameProperty.js')
-var listenersPropagation = require('../utils/listenersPropagation.js')
-var debug = require('debug')('relieve:scripttask')
-var EventEmitter = require('eventemitter2').EventEmitter2
+const child_process = require('child_process')
+const Promise = require('bluebird')
+const IPCEE = require('ipcee')
+const p = require('path')
+const util = require('util')
+const defineNameProperty = require('../utils/defineNameProperty.js')
+const listenersPropagation = require('../utils/listenersPropagation.js')
+const debug = require('debug')('relieve:scripttask')
+const EventEmitter = require('eventemitter2').EventEmitter2
 
 /**
  * A Script Task
@@ -23,11 +23,11 @@ const CONTAINER = p.resolve(__dirname, '../containers/ScriptContainer.js')
 /**
  * ScriptTask takes a module path and runs it in a container
  * @class
- * @extends IPCEE 
+ * @extends IPCEE
  * @see {@link https://github.com/soyuka/IPCEE}
  * @see {@link https://nodejs.org/api/child_process.html}
  * @param {String} script the path of the script
- * @param {Object} options 
+ * @param {Object} options
  * @property {ChildProcess} channel the ipcee channel
  * @property {String} [name=uuid.v4] the task name
  * @property {Object} options Task options
@@ -51,7 +51,7 @@ function ScriptTask(script, options) {
   this.script = script
 
   this.options = {
-    restart: options.restart || false, 
+    restart: options.restart || false,
     restartDelay: options.restartDelay || 0,
     container: options.container || CONTAINER,
     eventemitter: options.eventemitter || {wildcard: false},
@@ -80,7 +80,7 @@ ScriptTask.prototype.onExit = function(code) {
   this.events = []
 
   if(this.options.restart === false) {
-    return;
+    return
   }
 
   this.restart()
@@ -104,12 +104,10 @@ ScriptTask.prototype.onError = function(message, stack) {
  * @listens exit
  * @return {Promise} resolve when Task emits start
  */
-ScriptTask.prototype.start = function(/** args **/) {
+ScriptTask.prototype.start = function(...args) {
   if(this.running === true) {
     return Promise.reject(new ReferenceError('Already running'))
   }
-
-  let args = [].slice.call(arguments)
 
   if(args.length === 0)
     args = this.arguments
@@ -123,7 +121,7 @@ ScriptTask.prototype.start = function(/** args **/) {
 
   debug('Forking %s with args %o', this.script, args)
 
-  this._fork = child_process.fork(this.options.container, args, this.options.childprocess) 
+  this._fork = child_process.fork(this.options.container, args, this.options.childprocess)
 
   this.channel = new IPCEE(this._fork, this.options.eventemitter)
 
@@ -136,11 +134,9 @@ ScriptTask.prototype.start = function(/** args **/) {
     this.channel[e.method].apply(this.channel, e.args)
   }
 
-  let self = this
-
-  return new Promise(function(resolve, reject) {
-    self.running = true
-    self.channel.once('start', resolve)   
+  return new Promise((resolve, reject) => {
+    this.running = true
+    this.channel.once('start', resolve)
   })
 }
 
@@ -161,7 +157,7 @@ ScriptTask.prototype.restart = function() {
 
 /**
  * Fake event emitter, call events left in the stack
- * @param {String} event 
+ * @param {String} event
  * @param {Array} args
  * @private
  */
@@ -172,10 +168,10 @@ ScriptTask.prototype._fakeEmit = function(event, args) {
     let e = this.events[i]
 
     if(e.args[0] == event) {
-      e.args[1].apply(this, args) 
+      e.args[1].apply(this, args)
 
       if(~['once'].indexOf(e.method))  {
-        remove.push(i)  
+        remove.push(i)
       }
     }
   }
@@ -207,16 +203,15 @@ ScriptTask.prototype.kill = function(signal) {
  */
 ScriptTask.prototype.send = function(/** event, args **/) {
   if(!this.channel) {
-    throw new ReferenceError('The task is not running') 
+    throw new ReferenceError('The task is not running')
   }
 
   let args = [].slice.call(arguments)
   let channel = this.channel
-  let self = this
 
-  return new Promise(function(resolve, reject) {
-    args.push(function() {
-      return resolve(self) 
+  return new Promise((resolve, reject) => {
+    args.push(() => {
+      return resolve(this)
     })
 
     channel.send.apply(channel, args)
@@ -230,7 +225,7 @@ listenersPropagation(ScriptTask, function replicateListener(method) {
   return function() {
     let args = [].slice.call(arguments)
 
-    if(!this.channel) { 
+    if(!this.channel) {
       debug('No channel, keep event', {method: method, args: args})
       this.events.push({method: method, args: args})
     } else {

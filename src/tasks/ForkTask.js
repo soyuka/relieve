@@ -1,7 +1,7 @@
-'use strict';
-var IPCEE = require('ipcee')
-var util = require('util')
-var defineNameProperty = require('../utils/defineNameProperty.js')
+'use strict'
+const IPCEE = require('ipcee')
+const util = require('util')
+const defineNameProperty = require('../utils/defineNameProperty.js')
 
 /**
  * A basic Fork task

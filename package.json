@@ -8,6 +8,7 @@
     "coverage": "istanbul cover _mocha",
     "jsdoc": "jsdoc -c jsdoc.json"
   },
+  "engines": { "node" : ">=6.0.0" },
   "repository": "http://github.com/soyuka/relieve",
   "keywords": [
     "child",
@@ -21,14 +22,14 @@
   "author": "Antoine Bluchet <soyuka@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.0.5",
+    "bluebird": "^3.4.0",
     "debug": "^2.2.0",
-    "eventemitter2": "^0.4.14",
+    "eventemitter2": "^1.0.3",
     "ipcee": "^1.0.5",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.2"
   },
   "devDependencies": {
-    "chai": "^3.4.0",
-    "mocha": "^2.3.4"
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
   }
 }

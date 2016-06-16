@@ -1,18 +1,18 @@
-'use strict';
-var uuid = require('uuid')
+'use strict'
+const uuid = require('uuid')
 
 /**
  * Registers getter and setter for `.name` property on the given prototype
  * The default name will be a generated uuid
  *
- * The setter sets the name once! 
+ * The setter sets the name once!
  * @param {Function} Fn The prototype where name will be added
  */
 function defineNameProperty(Fn) {
   Object.defineProperty(Fn.prototype, 'name', {
     get: function getName() {
       if(this._name === undefined) {
-        this._name = uuid.v4() 
+        this._name = uuid.v4()
       }
 
       return this._name

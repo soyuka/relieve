@@ -1,5 +1,5 @@
-'use strict';
-var IPCEE = require('ipcee')
+'use strict'
+const IPCEE = require('ipcee')
 
 /**
  * Script container
@@ -13,13 +13,11 @@ process.argv = process.argv.map(function(e, i) {
   return JSON.parse(e)
 })
 
-var args = [].slice.call(process.argv, 2)
+let args = [].slice.call(process.argv, 2)
 
-var opts = args.pop()
+const ipc = IPCEE(process, args.pop())
 
-var ipc = IPCEE(process, opts)
-
-var script = require(args[0])
+let script = require(args[0])
 
 if(typeof script == 'function')
   script = new script
@@ -37,11 +35,9 @@ process.on('uncaughtException', function(err) {
    */
   ipc.send('error', err.toString(), err.stack)
 
-  process.nextTick(function() {
-    process.exit(1) 
-  })
+  process.nextTick(() => process.exit(1))
 })
 
 ipc.send('start')
 
-module.exports = {script: script, ipc: ipc}
+module.exports = {script, ipc}
