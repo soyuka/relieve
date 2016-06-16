@@ -9,10 +9,10 @@ For example, with a CallableTask:
 //task.js
 //just export a module in the child process
 module.exports = {
-  print: function(str) = {
+  print: (str) => {
     console.log(str)
   },
-  data: function() {
+  data: () => {
     //return some async data
     return Promise.resolve({foo: 'bar'})
   }
@@ -20,18 +20,18 @@ module.exports = {
 ```
 
 And add a unique Worker that will call the task method:
-```javascript      
+```javascript
 //worker.js
 var CallableTask = require('relieve')('tasks').CallableTask
 var task = new ScriptTask('task.js')
 
 task.start()
-.then(function() {
+.then(() => {
   task.call('print', 'hello world')
-  task.get('data')
-  .then(d => {
-    //d is {foo: 'bar'}
-  })
+  return task.get('data')
+})
+.then(d => {
+  //d is {foo: 'bar'}
 })
 ```
 
@@ -47,8 +47,8 @@ The task can be used without a Worker, but the Worker helps managing workflows.
 
 ### Task
 
-The task will implement a child process using `fork`. It'll make sure that there is an ipc channel open so that Workers and Tasks can communicate. 
-There are different tasks implementations: 
+The task will implement a child process using `fork`. It'll make sure that there is an ipc channel open so that Workers and Tasks can communicate.
+There are different tasks implementations:
 
 - Fork Task - simply transforms a `ChildProcess.fork` in a Task
 - Script Task - wraps a script path in a container that is managed through `ChildProcess.fork`. It gives the ability to start, restart or kill a Task
@@ -69,7 +69,7 @@ Different kind of Workers for different use cases. Every Worker takes one or mor
 - QueueWorker - process tasks one after the other, or in concurrency. Waits for a Task to exit before it consider's it as done.
 - CloudWorker - does not wait for tasks to exit and process them through a Strategy (ie: RoundRobin)
 
-#### Tutorials: 
+#### Tutorials:
 
 - [Worker](http://soyuka.github.io/relieve/tutorial-4-Worker.html)
 - [QueueWorker](http://soyuka.github.io/relieve/tutorial-5-QueueWorker.html)
@@ -78,3 +78,4 @@ Different kind of Workers for different use cases. Every Worker takes one or mor
 ### Links
 - [Documentation](http://soyuka.github.io/relieve/)
 - [Coverage](http://soyuka.github.io/relieve/coverage/lcov-report/)
+- [Blog post](https://soyuka.me/having-fun-with-nodejs-child-processes/)
