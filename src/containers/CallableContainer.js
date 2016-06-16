@@ -60,7 +60,7 @@ function get(key, method, ...args) {
   if(typeof script[method] == 'function') {
     return Promise.resolve(script[method].apply(script, args))
     .then((...args) => {
-      args.unshift(uid)
+      args.unshift(key)
 
       ipc.send.apply(ipc, args)
     })
