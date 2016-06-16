@@ -1,6 +1,6 @@
 {
   "name": "relieve",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Ease the implementation of multi threading accross your microservices",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,9 @@
     "coverage": "istanbul cover _mocha",
     "jsdoc": "jsdoc -c jsdoc.json"
   },
-  "engines": { "node" : ">=6.0.0" },
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "repository": "http://github.com/soyuka/relieve",
   "keywords": [
     "child",
