@@ -27,7 +27,7 @@
     "bluebird": "^3.4.0",
     "debug": "^2.2.0",
     "eventemitter2": "^2.0.0",
-    "ipcee": "^1.0.5",
+    "ipcee": "^1.0.6",
     "uuid": "^2.0.2"
   },
   "devDependencies": {
