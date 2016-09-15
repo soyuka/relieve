@@ -1,37 +1,53 @@
 'use strict';
-var ScriptTask = require(src + '/tasks/ScriptTask.js')
-var p = require('path')
-var task
+const ScriptTask = require(src + '/tasks/ScriptTask.js')
+const p = require('path')
+let task
+let startedAt
 
 describe('ScriptTask', function() {
-  
+
   it('should fail creating a new ScriptTask', function() {
-    try{ new ScriptTask({foo: 'bar'})} catch(e) { 
-      expect(e).to.be.an.instanceof(TypeError)   
+    try{ new ScriptTask({foo: 'bar'})} catch(e) {
+      expect(e).to.be.an.instanceof(TypeError)
       expect(e.message).to.equal('Script must be a string!')
     }
   })
 
   it('should create a new ScriptTask', function() {
-   task = new ScriptTask(p.resolve(__dirname, '../fixtures/script.js'))
-   return task.start()
+    task = new ScriptTask(p.resolve(__dirname, '../fixtures/script.js'))
+    return task.start()
+    .then(() => {
+      startedAt = task.startedAt
+      return Promise.resolve()
+    })
   })
 
   it('should reject starting again', function(cb) {
-   task.start()
-   .catch(function(e) { 
-     expect(e).to.be.an.instanceof(ReferenceError)
-     expect(e.message).to.equal('Already running')
-     cb() 
-   })
+    task.start()
+    .catch(function(e) {
+      expect(e).to.be.an.instanceof(ReferenceError)
+      expect(e.message).to.equal('Already running')
+      cb()
+    })
   })
 
   it('should restart', function() {
-   return task.restart()
+    return task.restart()
+    .then(() => {
+      expect(task.restarts).to.equal(2)
+      expect(task.running).to.be.true
+      expect(task.startedAt).not.to.equal(startedAt)
+      return Promise.resolve()
+    })
   })
 
-  it('should start', function() {
-   return task.start() 
+  it('should reject start', function(cb) {
+    task.start()
+    .catch(function(e) {
+      expect(e).to.be.an.instanceof(ReferenceError)
+      expect(e.message).to.equal('Already running')
+      cb()
+    })
   })
 
   it('should kill', function(cb) {
@@ -50,15 +66,15 @@ describe('ScriptTask', function() {
   })
 
   it('should register event before starting', function(cb) {
-    task = new ScriptTask(p.resolve(__dirname, '../fixtures/server.js'))    
+    task = new ScriptTask(p.resolve(__dirname, '../fixtures/server.js'))
     task.once('started', cb)
-    return task.start()
+    task.start()
   })
 
   it('should send a message to the task and resolve promise when message has been delivered', function() {
    return task.send('message', 'hello', 'world')
    .then(function(t) {
-      expect(t).to.deep.equal(task) 
+      expect(t).to.deep.equal(task)
       return Promise.resolve()
    })
   })
@@ -67,16 +83,16 @@ describe('ScriptTask', function() {
    let task = new ScriptTask(p.resolve(__dirname, '../fixtures/script.js'))
 
     try {
-      task.send('message', 'hello', 'world') 
+      task.send('message', 'hello', 'world')
     } catch(e) {
-      expect(e).to.be.an.instanceof(ReferenceError) 
-      expect(e.message).to.equal('The task is not running') 
+      expect(e).to.be.an.instanceof(ReferenceError)
+      expect(e.message).to.equal('The task is not running')
       cb()
     }
   })
 
   it('should start a task with arguments', function(cb) {
-   let task = new ScriptTask(p.resolve(__dirname, '../fixtures/arguments.js')) 
+   let task = new ScriptTask(p.resolve(__dirname, '../fixtures/arguments.js'))
 
    task.start('Hello World')
 
@@ -90,7 +106,7 @@ describe('ScriptTask', function() {
   })
 
   it('should start a task with complex arguments', function(cb) {
-   let task = new ScriptTask(p.resolve(__dirname, '../fixtures/arguments.js')) 
+   let task = new ScriptTask(p.resolve(__dirname, '../fixtures/arguments.js'))
 
    task.arguments = [{src: 'This', dest: 'That'}, ['foo', 'bar']]
    task.start()

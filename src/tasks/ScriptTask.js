@@ -61,6 +61,8 @@ function ScriptTask(script, options) {
   this.running = false
   this.events = []
   this.arguments = []
+  this.startedAt = 0
+  this.restarts = 0
 }
 
 defineNameProperty(ScriptTask)
@@ -136,7 +138,11 @@ ScriptTask.prototype.start = function(...args) {
 
   return new Promise((resolve, reject) => {
     this.running = true
-    this.channel.once('start', resolve)
+    this.channel.once('start', () => {
+      this.startedAt = new Date()
+      this.restarts++
+      resolve()
+    })
   })
 }
 
@@ -145,14 +151,18 @@ ScriptTask.prototype.start = function(...args) {
  * @return {Promise} resolves when restarted
  */
 ScriptTask.prototype.restart = function() {
-  if(this.running === true) {
-    this.kill()
-    this.running = false
+  let restart = () => {
+    this.channel.emit('restart')
+
+    return Promise.delay(this.options.restartDelay).then(() => this.start())
   }
 
-  this.channel.emit('restart')
-
-  return Promise.delay(this.options.restartDelay).then(() => this.start())
+  if(this.running === true) {
+    return this.kill()
+    .then(restart)
+  } else {
+    return restart()
+  }
 }
 
 /**
@@ -191,7 +201,12 @@ ScriptTask.prototype.kill = function(signal) {
   }
 
   let client = this.channel.client
-  return client.kill.call(client, signal)
+
+  return new Promise((resolve, reject) => {
+    this.channel.once('exit', () => resolve())
+
+    client.kill.call(client, signal)
+  })
 }
 
 /**
