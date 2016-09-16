@@ -36,7 +36,8 @@ const CONTAINER = p.resolve(__dirname, '../containers/ScriptContainer.js')
  * @property {String} options.container The Container path that holds the Task
  * @property {Object} options.eventemitter Eventemitter2 options
  * @property {Object} options.childprocess childprocess.Fork options
- * @property {Boolean} running the ipcee channel
+ * @property {Object} options.interfaces Javascript prototype which grasp on the Task prototye
+ * @property {[]} running the ipcee channel
  */
 function ScriptTask(script, options) {
 
@@ -55,7 +56,8 @@ function ScriptTask(script, options) {
     restartDelay: options.restartDelay || 0,
     container: options.container || CONTAINER,
     eventemitter: options.eventemitter || {wildcard: false},
-    childprocess: options.childprocess || {}
+    childprocess: options.childprocess || {},
+    interfaces: options.interfaces || []
   }
 
   this.running = false
@@ -63,6 +65,15 @@ function ScriptTask(script, options) {
   this.arguments = []
   this.startedAt = 0
   this.restarts = 0
+
+  this.options.interfaces.length && this.options.interfaces.map(i => {
+    if (typeof i.attach !== 'function') {
+      console.error('Interface should have an attach method')
+      return
+    }
+
+    i.attach(this)
+  })
 }
 
 defineNameProperty(ScriptTask)
@@ -121,7 +132,7 @@ ScriptTask.prototype.start = function(...args) {
   //adds the event emitter options in last position
   args.push(JSON.stringify(this.options.eventemitter))
 
-  debug('Forking %s with args %o', this.script, args)
+  debug('Forking %s with args %o and options %j', this.script, args)
 
   this._fork = child_process.fork(this.options.container, args, this.options.childprocess)
 

@@ -120,4 +120,30 @@ describe('ScriptTask', function() {
      process.nextTick(cb)
    })
   })
+
+  it('should add one interface', function() {
+    function Logger() {
+    }
+
+    Logger.prototype.attach = (task) => {
+      task.start = 'attached'
+    }
+
+    let task = new ScriptTask(`${__dirname}/../fixtures/script.js`, {interfaces: [new Logger]})
+
+    expect(task.start).to.equal('attached')
+  })
+
+  it('should not add invalid interface', function() {
+    function Logger() {
+    }
+
+    Logger.prototype.invalidattach = (task) => {
+      task.start = 'attached'
+    }
+
+    let task = new ScriptTask(`${__dirname}/../fixtures/script.js`, {interfaces: [new Logger]})
+
+    expect(task.start).not.to.equal('attached')
+  })
 })
