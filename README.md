@@ -19,11 +19,12 @@ module.exports = {
 }
 ```
 
-And add a unique Worker that will call the task method:
+Then from your master, just call the task:
+
 ```javascript
 //worker.js
-var CallableTask = require('relieve')('tasks').CallableTask
-var task = new ScriptTask('task.js')
+var CallableTask = require('relieve/tasks/CallableTask')
+var task = new CallableTask('task.js')
 
 task.start()
 .then(() => {

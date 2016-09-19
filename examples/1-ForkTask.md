@@ -11,7 +11,7 @@ This would be the task worker:
 
 ```javascript
 //worker.js
-var ForkTask = require('relieve').tasks.ForkTask
+var ForkTask = require('relieve/tasks/ForkTask')
 var fork = require('child_process').fork
 
 var task_fork = fork('task.js')
@@ -28,13 +28,13 @@ Another example using IPCEE to ease the communication:
 
 ```javascript
 //task.js
-var IPCEE = require('relieve').IPCEE
+var IPCEE = require('relieve/IPCEE')
 
 var ipc = IPCEE(process)
 
 ipc.on('thank', function(person) {
   if(person == 'you')
-    ipc.send('you', 'welcome') 
+    ipc.send('you', 'welcome')
 })
 ```
 
@@ -42,7 +42,7 @@ The worker:
 
 ```javascript
 //worker.js
-var ForkTask = require('relieve').tasks.ForkTask
+var ForkTask = require('relieve/tasks/ForkTask')
 var fork = require('child_process').fork
 
 task = new ForkTask(fork('task.js'))

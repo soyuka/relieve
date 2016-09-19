@@ -8,15 +8,15 @@ The Task:
 //task.js
 var archiver = require('archiver')
 var fs = require('fs')
-var channel
-var archive 
+var channel = process.relieve.ipc
+var archive
 
 function archiveDirectory(dir) {
   archive = archiver('zip')
   var output = fs.createWriteStream('archive.zip')
 
   output.on('close', function() {
-    channel.send('finish', archive.pointer() + ' bytes written') 
+    channel.send('finish', archive.pointer() + ' bytes written')
   })
 
   archive.on('error', function(err) { throw err })
@@ -28,7 +28,6 @@ function archiveDirectory(dir) {
 }
 
 module.exports = {
-  setChannel: function(c) { channel = c },
   archiveDirectory: archiveDirectory,
   bytesWritten: function() { return archive.pointer() }
 }
@@ -40,7 +39,7 @@ The Worker:
 
 ```javascript
 //worker.js
-var CallableTask = require('relieve').tasks.CallableTask
+var CallableTask = require('relieve/tasks/CallableTask')
 
 var task = new CallableTask('task.js', {restart: true})
 
@@ -54,7 +53,7 @@ task.start()
 
   task.once('finish', function(message) {
     console.log(message)
-    clearInterval(bytesInterval) 
+    clearInterval(bytesInterval)
   })
 })
 ```

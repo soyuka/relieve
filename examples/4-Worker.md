@@ -13,8 +13,8 @@ My worker will handle a couple of tasks:
 
 ```javascript
 //worker.js
-var Worker = require('relieve').workers.Worker
-var Task = require('relieve').tasks.ForkTask
+var Worker = require('relieve/workers/Worker')
+var Task = require('relieve/tasks/ForkTask')
 
 var task1 = new Task(fork('answer.js'))
 task1.name = 'task1'

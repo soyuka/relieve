@@ -1,7 +1,7 @@
 The [CloudWorker]{@link module:workers/CloudWorker~CloudWorker} does not accept ForkTasks. It will handle start/stop action, and therefore when a Task is added it must not be started.
 
 The CloudWorker differs from the QueueWorker in which it does not wait for tasks to end. It assumes that tasks should run forever, and therefore works well with the `autorestart` feature.
-Then, the CloudWorker works with a Strategy, like a Round-Robin that will give the next available task. The default Strategy is a weight strategy that increments/decrements a task-basis counter according to the number of calls the task gets. 
+Then, the CloudWorker works with a Strategy, like a Round-Robin that will give the next available task. The default Strategy is a weight strategy that increments/decrements a task-basis counter according to the number of calls the task gets.
 
 For example:
 
@@ -18,8 +18,8 @@ worker.run()
 //every task has started
 .then(function() {
   //send ping to the next available task
-  worker.get('ping') 
-  //if it's a long running task, this second instruction 
+  worker.get('ping')
+  //if it's a long running task, this second instruction
   //will most likely call the second task
   worker.get('ping')
 })
@@ -29,7 +29,7 @@ worker.run()
 
 Here we decide to send the Socket to the next available task, to process some data and send him back the requested data.
 
-The task just handles the fibonnacci calculation, and sends the data directly to the socket. 
+The task just handles the fibonnacci calculation, and sends the data directly to the socket.
 
 ```
 //task.js
@@ -41,22 +41,23 @@ function fibonacci(max) {
   let k = 0;
 
   for(; k < max; i = j, j = x, k++)  {
-    
+
     if(x > Number.MAX_SAFE_INTEGER) {
       console.error('Fibonacci stopeed at iteration %d', k);
-      return {number: x, iterations: k, error: 'Number exceed the limit ('+Number.MAX_SAFE_INTEGER+')'} 
+      return {number: x, iterations: k, error: 'Number exceed the limit ('+Number.MAX_SAFE_INTEGER+')'}
     }
 
-    x = i + j 
+    x = i + j
   }
 
   return {number: x, iterations: k}
 }
 
 var socks = []
+var channel = process.relieve.ipc
 
 module.exports = {
-  setChannel: function(channel) {
+  start: function() {
     channel.on('socket', function(socket) {
       socks.push(socket)
     })
@@ -65,8 +66,8 @@ module.exports = {
     let sock = socks.shift()
     let f = fibonacci(num)
     if(f.error) {
-      sock.write('Fibonnacci errored with message: \n') 
-      sock.write(f.error + '\n') 
+      sock.write('Fibonnacci errored with message: \n')
+      sock.write(f.error + '\n')
       sock.end()
       return
     }
@@ -78,11 +79,11 @@ module.exports = {
 }
 ```
 
-The worker sends the incoming socket to one of our tasks. 
+The worker sends the incoming socket to one of our tasks.
 
 ```
 'use strict';
-var relieve = require('../../index.js')
+var relieve = require('relieve')
 var CallableTask = relieve.tasks.CallableTask
 var Worker = relieve.workers.CloudWorker
 var net = require('net')
@@ -110,12 +111,12 @@ server.on('connection', function(socket) {
   .then(function(task) {
     let n = Math.floor(Math.random() * (RANDOM_MAX - RANDOM_MIN + 1)) + RANDOM_MIN
     //call doHeavyStuff, the task will handle the response
-    task.call('doHeavyStuff', n) 
+    task.call('doHeavyStuff', n)
   })
 })
 
 server.listen(function() {
-  console.log('server listening on %j', server.address());  
+  console.log('server listening on %j', server.address());
 })
 ```
 
