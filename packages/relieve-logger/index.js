@@ -19,13 +19,17 @@ Logger.prototype.attach = function(task) {
     return this.start.apply(this, args)
   }
 
-  task.channel.once('exit', this.onExit.bind(this))
+  this.oldOnExit = task.onExit
+  task.onExit = (...args) => {
+    return this.onExit.apply(this, args)
+  }
 
   this.task = task
 }
 
 Logger.prototype.onExit = function() {
   this.streams.map(s => s.end())
+  return this.oldOnExit()
 }
 
 Logger.prototype.start = function(...args) {

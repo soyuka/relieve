@@ -3,13 +3,12 @@ const moment = require('moment')
 const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
-const EE = require('eventemitter2')
 const fakeTask = {
   start: function() {},
   options: {
     childprocess: {}
   },
-  channel: new EE()
+  onExit: function() {}
 }
 
 describe('RelieveLogger', function() {
@@ -21,7 +20,7 @@ describe('RelieveLogger', function() {
     fakeTask.start = function() {
       this.options.childprocess.stdout.write('test')
       process.nextTick(function() {
-        fakeTask.channel.emit('exit')
+        fakeTask.onExit()
       })
 
       return Promise.resolve()
@@ -44,7 +43,7 @@ describe('RelieveLogger', function() {
     fakeTask.start = function() {
       this.options.childprocess.stdout.write('test')
       process.nextTick(function() {
-        fakeTask.channel.emit('exit')
+        fakeTask.onExit('exit')
       })
 
       return Promise.resolve()
