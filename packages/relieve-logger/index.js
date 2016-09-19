@@ -8,7 +8,6 @@ function Logger(out, err, options = {}) {
   this.out = out
   this.err = err
   this.options = {
-    rotate: options.rotate || false,
     delay: options.delay || null,
     size: options.size || 0
   }
