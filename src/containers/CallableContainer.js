@@ -12,9 +12,12 @@ const p = require('path')
  */
 const SCRIPT_OBJECT_ERROR = 'Script is not an object'
 
-const container = require('./ScriptContainer.js')
-const script = container.script
-const ipc = container.ipc
+if (!process.relieve) {
+  require('./ScriptContainer.js')
+}
+
+const script = process.relieve.script
+const ipc = process.relieve.ipc
 
 /**
  * Adds a stack trace to the error event

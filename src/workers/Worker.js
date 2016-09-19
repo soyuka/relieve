@@ -110,8 +110,8 @@ readOnly(Worker, 'tasks', function() {
 
 listenersPropagation(Worker, function replicateListener(method) {
   return function() {
+    debug('Register event %s on task', method)
     for(let task of tasks.values()) {
-      debug('Register event %s on every task', method)
       task[method].apply(task, arguments)
     }
   }

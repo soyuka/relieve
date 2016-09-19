@@ -27,7 +27,7 @@ describe('CallableTask', function() {
   })
 
   it('should have register an emiting interval', function(cb) {
-   task.once('working', cb) 
+   task.once('working', cb)
   })
 
   it('should stop the interval', function() {
@@ -63,10 +63,25 @@ describe('CallableTask', function() {
 
   it('should create a new CallableTask with a different Container', function() {
    task = new CallableTask(p.resolve(__dirname, '../fixtures/script.js'), {container: p.resolve(src, 'containers/ScriptContainer.js')})
-   return task.start()
+    return task.start()
   })
 
   it('should kill the task', function() {
-   return task.kill() 
+    return task.kill()
+  })
+
+  it('should be monitorable', function(cb) {
+    let monitorContainer = `${__dirname}/../../containers/MonitorContainer.js`
+    task = new CallableTask(p.resolve(__dirname, '../fixtures/script.js'), {containers: [monitorContainer]})
+
+    task.start()
+    .then(() => {
+      task.send('usage')
+      task.once('usage', function(t) {
+        expect(t).to.have.property('memory')
+        expect(t).to.have.property('cpu')
+        cb()
+      })
+    })
   })
 })

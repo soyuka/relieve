@@ -33,7 +33,8 @@ const CONTAINER = p.resolve(__dirname, '../containers/ScriptContainer.js')
  * @property {Object} options Task options
  * @property {Boolean} options.restart Restart when exit
  * @property {Number} options.restartDelay Delay before restart
- * @property {String} options.container The Container path that holds the Task
+ * @property {String} options.container Base Container
+ * @property {Array} options.containers An array of additional containers
  * @property {Object} options.eventemitter Eventemitter2 options
  * @property {Object} options.childprocess childprocess.Fork options
  * @property {Object} options.interfaces Javascript prototype which grasp on the Task prototye
@@ -54,6 +55,7 @@ function ScriptTask(script, options) {
   this.options = {
     restart: options.restart || false,
     restartDelay: options.restartDelay || 0,
+    containers: options.containers || [],
     container: options.container || CONTAINER,
     eventemitter: options.eventemitter || {wildcard: false},
     childprocess: options.childprocess || {},
@@ -64,7 +66,7 @@ function ScriptTask(script, options) {
   this.events = []
   this.arguments = []
   this.startedAt = 0
-  this.restarts = 0
+  this.restarts = -1
 
   this.options.interfaces.length && this.options.interfaces.map(i => {
     if (typeof i.attach !== 'function') {
@@ -92,7 +94,7 @@ ScriptTask.prototype.onExit = function(code) {
   this.running = false
   this.events = []
 
-  if(this.options.restart === false) {
+  if(this.shouldRestart === false) {
     return
   }
 
@@ -122,6 +124,8 @@ ScriptTask.prototype.start = function(...args) {
     return Promise.reject(new ReferenceError('Already running'))
   }
 
+  this.shouldRestart = this.options.restart
+
   if(args.length === 0)
     args = this.arguments
 
@@ -130,7 +134,7 @@ ScriptTask.prototype.start = function(...args) {
   //adds the script in first position
   args.unshift(this.script)
   //adds the event emitter options in last position
-  args.push(JSON.stringify(this.options.eventemitter))
+  args.push(JSON.stringify({eventemitter: this.options.eventemitter, containers: this.options.containers}))
 
   debug('Forking %s with args %o and options %j', this.script, args)
 
@@ -199,6 +203,14 @@ ScriptTask.prototype._fakeEmit = function(event, args) {
 
   for(let i in remove)
     this.events.splice(remove[i], 1)
+}
+
+ScriptTask.prototype.stop = function() {
+  if (this.shouldRestart) {
+    this.shouldRestart = false
+  }
+
+  return this.kill()
 }
 
 /**

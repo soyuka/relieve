@@ -27,7 +27,9 @@ function CallableTask(script, options) {
   if(!options)
     options = {}
 
-  ScriptTask.call(this, script, util._extend({container: CONTAINER}, options))
+  options.containers = [CONTAINER].concat(options.containers || [])
+
+  ScriptTask.call(this, script, options)
 }
 
 util.inherits(CallableTask, ScriptTask)

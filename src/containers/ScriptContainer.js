@@ -15,15 +15,22 @@ process.argv = process.argv.map(function(e, i) {
 
 let args = [].slice.call(process.argv, 2)
 
-const ipc = IPCEE(process, args.pop())
+let containerArgs = args.pop()
+const ipc = IPCEE(process, containerArgs.eventemitter)
 
 let script = require(args[0])
 
-if(typeof script == 'function')
+if(typeof script == 'function') {
   script = new script
+}
 
 if(typeof script == 'object' && typeof script.setChannel == 'function') {
+  console.error('setChannel: deprecated method call, use start instead or access the channel through process.relieve.ipc')
   script.setChannel(ipc)
+}
+
+if(typeof script == 'object' && typeof script.start == 'function') {
+  script.start()
 }
 
 /**
@@ -40,4 +47,6 @@ process.on('uncaughtException', function(err) {
 
 ipc.send('start')
 
-module.exports = {script, ipc}
+process.relieve = {script, ipc}
+
+containerArgs.containers.map(e => require(e))

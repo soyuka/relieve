@@ -34,7 +34,7 @@ describe('ScriptTask', function() {
   it('should restart', function() {
     return task.restart()
     .then(() => {
-      expect(task.restarts).to.equal(2)
+      expect(task.restarts).to.equal(1)
       expect(task.running).to.be.true
       expect(task.startedAt).not.to.equal(startedAt)
       return Promise.resolve()
@@ -145,5 +145,24 @@ describe('ScriptTask', function() {
     let task = new ScriptTask(`${__dirname}/../fixtures/script.js`, {interfaces: [new Logger]})
 
     expect(task.start).not.to.equal('attached')
+  })
+
+  it('should stop and not restart', function(cb) {
+   task = new ScriptTask(p.resolve(__dirname, '../fixtures/script.js'), {restart: true, restartDelay: 200})
+
+   task.start()
+   .then(() => task.stop())
+   .then(() => {
+      expect(task.restarts).to.equal(0)
+      expect(task.running).to.be.false
+      cb()
+   })
+  })
+
+  it('should still be an autorestart task', function(cb) {
+    task.restart = cb
+
+    task.start()
+    .then(() => task.kill())
   })
 })
