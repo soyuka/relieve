@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha",
     "coverage": "istanbul cover _mocha",
-    "jsdoc": "jsdoc -c jsdoc.json"
+    "jsdoc": "jsdoc -c jsdoc.json",
+    "postinstall": "bash links.sh"
   },
   "engines": {
     "node": ">=6.0.0"
