@@ -1,6 +1,6 @@
 
 module.exports = {
-  setChannel: function(channel) {
-    channel.send('arguments', process.argv)
+  start: function() {
+    process.relieve.ipc.send('arguments', process.argv)
   }
 }

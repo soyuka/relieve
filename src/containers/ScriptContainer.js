@@ -24,6 +24,8 @@ if(typeof script == 'function') {
   script = new script
 }
 
+process.relieve = {script, ipc}
+
 if(typeof script == 'object' && typeof script.setChannel == 'function') {
   console.error('setChannel: deprecated method call, use start instead or access the channel through process.relieve.ipc')
   script.setChannel(ipc)
@@ -46,7 +48,5 @@ process.on('uncaughtException', function(err) {
 })
 
 ipc.send('start')
-
-process.relieve = {script, ipc}
 
 containerArgs.containers.map(e => require(e))

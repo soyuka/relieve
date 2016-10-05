@@ -1,15 +1,12 @@
 module.exports = {
   interval: null,
-  setChannel: function(channel) {
-    this.channel = channel 
-  },
   getMe: function(data) {
     return Promise.resolve(data)
   },
   callMe: function(data) {
     var self = this
     this.interval = setInterval(function() {
-      self.channel.send('working')
+      process.relieve.ipc.send('working')
     })
   },
   stopMe: function() {

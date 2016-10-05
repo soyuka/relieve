@@ -70,7 +70,7 @@ function ScriptTask(script, options) {
 
   this.options.interfaces.length && this.options.interfaces.map(i => {
     if (typeof i.attach !== 'function') {
-      console.error('Interface should have an attach method')
+      throw new TypeError('Interface should have an attach method')
       return
     }
 
