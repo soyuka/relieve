@@ -123,9 +123,26 @@ listenersPropagation(Worker, function replicateListener(method) {
  * @see ChildProcess#signal
  */
 Worker.prototype.kill = function(signal) {
- for(let task of tasks.values()) {
-   task.kill(signal)
- }
+  for(let task of tasks.values()) {
+    task.kill(signal)
+  }
+}
+
+/**
+ * Starts every tasks
+ * @param {Number} Signal
+ * @see ChildProcess#signal
+ */
+Worker.prototype.start = function(...args) {
+  let stack = []
+  for(let task of tasks.values()) {
+    task.start.apply(task, args)
+    stack.push(new Promise((resolve) => {
+      task.once('start', resolve)
+    }))
+  }
+
+  return Promise.all(stack)
 }
 
 module.exports = Worker
