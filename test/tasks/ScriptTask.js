@@ -142,12 +142,9 @@ describe('ScriptTask', function() {
       task.start = 'attached'
     }
 
-    try {
-      let task = new ScriptTask(`${__dirname}/../fixtures/script.js`, {interfaces: [new Logger]})
-    } catch(e) {
-      expect(e).to.be.an.instanceof(TypeError)
-      expect(e.message).to.equal('Interface should have an attach method')
-    }
+    let task = new ScriptTask(`${__dirname}/../fixtures/script.js`, {interfaces: [new Logger]})
+
+    expect(task.start).not.to.equal('attached')
   })
 
   it('should stop and not restart', function(cb) {
