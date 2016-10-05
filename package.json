@@ -7,7 +7,7 @@
     "test": "mocha",
     "coverage": "istanbul cover _mocha",
     "jsdoc": "jsdoc -c jsdoc.json",
-    "postinstall": "bash links.sh"
+    "postinstall": "node links.js"
   },
   "engines": {
     "node": ">=6.0.0"
