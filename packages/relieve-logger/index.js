@@ -27,9 +27,9 @@ Logger.prototype.attach = function(task) {
   this.task = task
 }
 
-Logger.prototype.onExit = function() {
+Logger.prototype.onExit = function(code) {
   this.streams.map(s => s.end())
-  return this.oldOnExit()
+  return this.oldOnExit.apply(this.task, [code])
 }
 
 Logger.prototype.start = function(...args) {
