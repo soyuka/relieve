@@ -19,25 +19,21 @@ Logger.prototype.attach = function(task) {
     return this.start.apply(this, args)
   }
 
-  this.oldOnExit = task.onExit
-  task.onExit = (...args) => {
-    return this.onExit.apply(this, args)
-  }
-
   this.task = task
-}
-
-Logger.prototype.onExit = function(code) {
-  this.streams.map(s => s.end())
-  return this.oldOnExit.apply(this.task, [code])
 }
 
 Logger.prototype.start = function(...args) {
   return Promise.all([this.getStream(this.out), this.getStream(this.err)])
   .then((streams) => {
-    this.streams = streams.filter(s => s instanceof WritableStream)
-    this.task.options.childprocess.stdout = this.streams[0] || null
-    this.task.options.childprocess.stderr = this.streams[1] || null
+    this.streams = streams.map(s => {
+      if (s instanceof WritableStream) {
+        return s
+      }
+
+      return null
+    })
+
+    this.task.options.childprocess.stdio = [this.streams[0], this.streams[1], null, 'ipc']
 
     return this.oldStart.apply(this.task, args)
   })
