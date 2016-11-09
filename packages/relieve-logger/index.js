@@ -73,11 +73,25 @@ Logger.prototype.getStream = function(something) {
     .then((doRotate) => {
       return doRotate ? rotate(something) : Promise.resolve()
     })
-    .then(() => fs.createWriteStream(something, {'flags': 'a'}))
+    .then(() => {
+      return new Promise((resolve) => {
+        let stream = fs.createWriteStream(something, {'flags': 'a'})
+
+        stream.on('open', function() {
+          resolve(stream)
+        })
+      })
+    })
   })
   .catch(e => {
     if (e.code === 'ENOENT') {
-      return fs.createWriteStream(something)
+      return new Promise((resolve) => {
+        let stream = fs.createWriteStream(something)
+
+        stream.on('open', function() {
+          resolve(stream)
+        })
+      })
     }
 
     return Promise.reject(e)
