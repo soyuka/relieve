@@ -7,8 +7,7 @@ const fakeTask = {
   start: function() {},
   options: {
     childprocess: {}
-  },
-  onExit: function() {}
+  }
 }
 
 describe('RelieveLogger', function() {
@@ -18,9 +17,9 @@ describe('RelieveLogger', function() {
     let l = new Logger(path)
 
     fakeTask.start = function() {
-      this.options.childprocess.stdout.write('test')
-      process.nextTick(function() {
-        fakeTask.onExit()
+      this.options.childprocess.stdio[0].write('test')
+      process.nextTick(() => {
+       this.options.childprocess.stdio[0].end()
       })
 
       return Promise.resolve()
@@ -30,7 +29,7 @@ describe('RelieveLogger', function() {
 
     fakeTask.start()
     .then(() => {
-      fakeTask.options.childprocess.stdout.on('close', function() {
+      fakeTask.options.childprocess.stdio[0].on('close', function() {
         cb()
       })
     })
@@ -41,9 +40,9 @@ describe('RelieveLogger', function() {
     let l = new Logger(path)
 
     fakeTask.start = function() {
-      this.options.childprocess.stdout.write('test')
-      process.nextTick(function() {
-        fakeTask.onExit('exit')
+      this.options.childprocess.stdio[0].write('test')
+      process.nextTick(() => {
+        this.options.childprocess.stdio[0].end()
       })
 
       return Promise.resolve()
@@ -53,7 +52,7 @@ describe('RelieveLogger', function() {
 
     fakeTask.start()
     .then(() => {
-      fakeTask.options.childprocess.stdout.on('close', function() {
+      fakeTask.options.childprocess.stdio[0].on('close', function() {
         let d = fs.readFileSync(path)
         expect(d.toString()).to.equal('testtest')
         fs.unlink(path, cb)
