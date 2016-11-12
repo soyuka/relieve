@@ -80,3 +80,10 @@ Different kind of Workers for different use cases. Every Worker takes one or mor
 - [Documentation](http://soyuka.github.io/relieve/)
 - [Coverage](http://soyuka.github.io/relieve/coverage/lcov-report/)
 - [Blog post](https://soyuka.me/having-fun-with-nodejs-child-processes/)
+
+### TODO
+
+- Documentation monitorable container
+- Documentation interfaces
+- Documentation logger
+- Documentation fail safe
