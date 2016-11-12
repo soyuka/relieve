@@ -1,5 +1,5 @@
 'use strict';
-const child_process = require('child_process')
+const fork = require('child_process').fork
 const Promise = require('bluebird')
 const IPCEE = require('ipcee')
 const p = require('path')
@@ -56,6 +56,7 @@ function ScriptTask(script, options) {
     restart: options.restart || false,
     restartDelay: options.restartDelay || 0,
     containers: options.containers || [],
+    containerArgs: {},
     container: options.container || CONTAINER,
     eventemitter: options.eventemitter || {wildcard: false},
     childprocess: options.childprocess || {},
@@ -112,6 +113,12 @@ ScriptTask.prototype.onError = function(message, stack) {
   console.error(stack)
 }
 
+ScriptTask.prototype._createFork = function(args) {
+  debug('Forking %s with args %o and options %j', this.script, args)
+  this._fork = fork(this.options.container, args, this.options.childprocess)
+  return Promise.resolve(new IPCEE(this._fork, this.options.eventemitter))
+}
+
 /**
  * Start the Task
  * @param {Arguments} args Arguments for the child_process
@@ -134,29 +141,37 @@ ScriptTask.prototype.start = function(...args) {
   //adds the script in first position
   args.unshift(this.script)
   //adds the event emitter options in last position
-  args.push(JSON.stringify({eventemitter: this.options.eventemitter, containers: this.options.containers}))
+  let containerArgs = this.options.containerArgs
+  containerArgs.eventemitter = this.options.eventemitter
+  containerArgs.containers = this.options.containers
 
-  debug('Forking %s with args %o and options %j', this.script, args)
+  args.push(JSON.stringify(containerArgs))
 
-  this._fork = child_process.fork(this.options.container, args, this.options.childprocess)
+  return this._createFork(args)
+  .then((channel) => {
+    return new Promise((resolve, reject) => {
+      this.channel = channel
+      this.channel.on('error', this.onError.bind(this))
+      this.channel.once('exit', this.onExit.bind(this))
 
-  this.channel = new IPCEE(this._fork, this.options.eventemitter)
+      for(let i in this.events) {
+        let e = this.events[i]
+        debug('Registering event', e)
+        this.channel[e.method].apply(this.channel, e.args)
+      }
 
-  this.channel.on('error', this.onError.bind(this))
-  this.channel.once('exit', this.onExit.bind(this))
+      this.running = true
 
-  for(let i in this.events) {
-    let e = this.events[i]
-    debug('Registering event', e)
-    this.channel[e.method].apply(this.channel, e.args)
-  }
+      if (channel.startedAt !== undefined) {
+        this.startedAt = channel.startedAt
+        return resolve()
+      }
 
-  return new Promise((resolve, reject) => {
-    this.running = true
-    this.channel.once('start', () => {
-      this.startedAt = new Date()
-      this.restarts++
-      resolve()
+      this.channel.once('start', (startedAt) => {
+        this.startedAt = startedAt
+        this.restarts++
+        resolve()
+      })
     })
   })
 }
