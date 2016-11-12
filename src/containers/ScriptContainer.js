@@ -1,30 +1,22 @@
 'use strict'
-const IPCEE = require('ipcee')
-
 /**
  * Script container
  * @module containers/ScriptContainer
  */
 
-process.argv = process.argv.map(function(e, i) {
-  if(i < 3)
-    return e
+if (!process.relieve || process.relieve.ipc === undefined) {
+  require('./IPCContainer')
+}
 
-  return JSON.parse(e)
-})
+const {argv, containerArgs, ipc} = process.relieve
 
-let args = [].slice.call(process.argv, 2)
-
-let containerArgs = args.pop()
-const ipc = IPCEE(process, containerArgs.eventemitter)
-
-let script = require(args[0])
+let script = require(argv[0])
 
 if(typeof script == 'function') {
   script = new script
 }
 
-process.relieve = {script, ipc}
+process.relieve.script = script
 
 if(typeof script == 'object' && typeof script.setChannel == 'function') {
   console.error('setChannel: deprecated method call, use start instead or access the channel through process.relieve.ipc')
@@ -38,15 +30,20 @@ if(typeof script == 'object' && typeof script.start == 'function') {
 /**
  * @listens module:process#uncaughtException
  */
-process.on('uncaughtException', function(err) {
+function errorCaught(err) {
+  console.error(err.stack)
+
   /**
-   * @fires start
+   * @fires error
    */
   ipc.send('error', err.toString(), err.stack)
 
   process.nextTick(() => process.exit(1))
-})
+}
 
-ipc.send('start')
+;['uncaughtException', 'unhandledRejection'].map(e => process.on(e, errorCaught))
 
 containerArgs.containers.map(e => require(e))
+
+const startedAt = Date.now()
+ipc.send('start', startedAt)

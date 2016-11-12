@@ -97,7 +97,7 @@ describe('ScriptTask', function() {
    task.start('Hello World')
 
    task.once('arguments', function(args) {
-     expect(args[3]).to.equal('Hello World')
+     expect(args[1]).to.equal('Hello World')
 
      task.kill()
 
@@ -112,8 +112,8 @@ describe('ScriptTask', function() {
    task.start()
 
    task.once('arguments', function(args) {
-     expect(args[3]).to.deep.equal({src: 'This', dest: 'That'})
-     expect(args[4]).to.deep.equal(['foo', 'bar'])
+     expect(args[1]).to.deep.equal({src: 'This', dest: 'That'})
+     expect(args[2]).to.deep.equal(['foo', 'bar'])
 
      task.kill()
 
