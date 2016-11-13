@@ -162,6 +162,8 @@ ScriptTask.prototype.start = function(...args) {
 
       this.running = true
 
+      this.channel.send('$RELIEVE_REQUIRE')
+
       if (channel.startedAt !== undefined) {
         this.startedAt = channel.startedAt
         return resolve()
