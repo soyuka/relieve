@@ -1,11 +1,9 @@
-var IPCEE = require('ipcee')
-
-var ipc = IPCEE(process, {wildcard: false})
+const ipc = process.relieve.ipc
 
 ipc.send('started')
 
 ipc.on('ping', function() {
- ipc.send('pong') 
+ ipc.send('pong')
 })
 
 ipc.on('ping.me', function() {
@@ -17,6 +15,6 @@ module.exports = {
     return 'world';
   },
   me: function() {
-    ipc.send('calling') 
+    ipc.send('calling')
   }
 }

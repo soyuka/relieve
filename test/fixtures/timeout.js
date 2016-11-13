@@ -1,6 +1,6 @@
-var IPCEE = require('ipcee')
-var channel = IPCEE(process)
+const ipc = process.relieve.ipc
+
 setTimeout(function() {
-  channel.send('response', 'ok')
+  ipc.send('response', 'ok')
   process.exit(0)
 }, 200)
