@@ -2,7 +2,7 @@
   "name": "relieve-failsafe",
   "version": "1.0.0",
   "description": "Relieve Fail Safe interface",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "mocha -b test/index.js"
   },
