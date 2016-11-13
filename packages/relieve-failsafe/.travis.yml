@@ -1,0 +1,14 @@
+language: node_js
+branches:
+  only:
+    - master
+node_js:
+   - "6"
+matrix:
+  fast_finish: true
+before_script:
+  - npm i -g istanbul codeclimate-test-reporter mocha
+sudo: false
+after_script:
+  - istanbul cover _mocha
+  - codeclimate-test-reporter < ./coverage/lcov.info
