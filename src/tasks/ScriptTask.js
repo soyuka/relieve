@@ -68,6 +68,7 @@ function ScriptTask(script, options) {
   this.arguments = []
   this.startedAt = 0
   this.restarts = -1
+  this._nameGenerated = true
 
   this.options.interfaces.length && this.options.interfaces.map(i => {
     if (typeof i.attach !== 'function') {
@@ -144,6 +145,7 @@ ScriptTask.prototype.start = function(...args) {
   let containerArgs = this.options.containerArgs
   containerArgs.eventemitter = this.options.eventemitter
   containerArgs.containers = this.options.containers
+  this.identity = containerArgs.identity = this._nameGenerated === false ? this.name : this.script
 
   args.push(JSON.stringify(containerArgs))
 
@@ -166,6 +168,7 @@ ScriptTask.prototype.start = function(...args) {
 
       if (channel.startedAt !== undefined) {
         this.startedAt = channel.startedAt
+        this.restarts++
         return resolve()
       }
 
@@ -186,11 +189,14 @@ ScriptTask.prototype.restart = function() {
   let restart = () => {
     this.channel.emit('restart')
 
-    return Promise.delay(this.options.restartDelay).then(() => this.start())
+    return Promise.delay(this.options.restartDelay).then(() => {
+      this.shouldRestart = true
+      return this.start()
+    })
   }
 
   if(this.running === true) {
-    return this.kill()
+    return this.stop()
     .then(restart)
   } else {
     return restart()

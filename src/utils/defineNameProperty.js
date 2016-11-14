@@ -19,10 +19,11 @@ function defineNameProperty(Fn) {
     },
     set: function setName(name) {
       if(this._name !== undefined) {
-        throw new TypeError()
+        throw new TypeError('Name can be set only once')
       }
 
       this._name = name
+      this._nameGenerated = false
     }
   })
 }
