@@ -39,14 +39,14 @@ FailSafe.prototype.attach = function(task) {
 FailSafe.prototype.createFork = function(args) {
   return master(this.options)
   .then(tcpeegroup => {
-    let tcpee = tcpeegroup.get(this.task.script)
+    let tcpee = tcpeegroup.get(this.task.identity)
 
     if (tcpee === undefined) {
       debug('Forking %s %s', this.task.options.container, this.task.script)
 			this.task._fork = fork(this.task.options.container, args, this.task.options.childprocess)
 
       return new Promise((resolve, reject) => {
-        tcpeegroup.once('add', function(tcpee) {
+        tcpeegroup.once('$TCPEE_ADD:'+this.task.identity, function(tcpee) {
           resolve(tcpee)
         })
       })

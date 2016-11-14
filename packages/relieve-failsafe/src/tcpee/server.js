@@ -7,6 +7,8 @@ const constants = require('../constants')
 let connectionsNumber = 0
 let timedOut = false
 let timeout
+let tcpee = null
+let server = null
 
 function close(socketPath) {
   return function exit(e) {
@@ -28,7 +30,19 @@ function resetTimeout(time, resolveFn) {
   }, time)
 }
 
-module.exports = function(options, waitingForNumber = 0) {
+function TCPEEServer(options, waitingForNumber = 0) {
+  if (tcpee) {
+    if (tcpee._ready === true) {
+      return Promise.resolve(tcpee)
+    }
+
+    return new Promise((resolve) => {
+      tcpee.once('ready', function() {
+        resolve(tcpee)
+      })
+    })
+  }
+
   debug('Start server, waiting for %s customers', waitingForNumber)
 
   options = constants(options)
@@ -40,13 +54,18 @@ module.exports = function(options, waitingForNumber = 0) {
 
   process.on('exit', close(options.SOCKET))
 
-  const server = new Server()
+  server = new Server()
   server.listen(options.SOCKET)
 
-  const tcpee = new TCPEEGroup(options)
+  tcpee = new TCPEEGroup(options)
 
   return new Promise((resolve, reject) => {
     function resolveFn() {
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+
+      tcpee.ready()
       resolve(tcpee)
     }
 
@@ -56,16 +75,22 @@ module.exports = function(options, waitingForNumber = 0) {
         .then(() => {
           resetTimeout(options.TIMEOUT, resolveFn)
           if (timedOut === false && ++connectionsNumber >= waitingForNumber) {
-            resolve(tcpee)
+            resolveFn()
           }
         })
       })
 
       if (waitingForNumber === 0) {
-        resolve(tcpee)
+        resolveFn()
       } else {
         resetTimeout(options.TIMEOUT, resolveFn)
       }
     })
   })
 }
+
+TCPEEServer.close = function() {
+  tcpee = null
+}
+
+module.exports = TCPEEServer

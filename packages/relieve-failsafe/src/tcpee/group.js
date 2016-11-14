@@ -7,6 +7,7 @@ function TCPEEGroup(options) {
 
   this.options = options
   this.clients = new Map()
+  this._ready = false
 
   EE.call(this, options)
 }
@@ -16,7 +17,7 @@ util.inherits(TCPEEGroup, EE)
 TCPEEGroup.prototype.add = function(sock) {
   let tcpee = new TCPEE(sock, this.options)
 
-  tcpee.client.on('close', () => {
+  tcpee.client.once('close', () => {
     this.clients.delete(tcpee.$TCPEE_IDENTITY)
   })
 
@@ -29,7 +30,7 @@ TCPEEGroup.prototype.add = function(sock) {
     tcpee.once('$TCPEE_IDENTITY', (identity) => {
       tcpee.$TCPEE_IDENTITY = identity
       this.clients.set(identity, tcpee)
-      this.emit('add', tcpee)
+      this.emit('$TCPEE_ADD:'+identity, tcpee)
       resolve(tcpee)
     })
   })
@@ -37,6 +38,11 @@ TCPEEGroup.prototype.add = function(sock) {
 
 TCPEEGroup.prototype.get = function(identity) {
   return this.clients.get(identity)
+}
+
+TCPEEGroup.prototype.ready = function() {
+  this._ready = true
+  this.emit('ready')
 }
 
 module.exports = TCPEEGroup

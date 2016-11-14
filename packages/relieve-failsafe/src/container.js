@@ -27,12 +27,16 @@ const ipc = new TCPEE(socket, process.relieve.containerArgs.eventemitter)
 
 process.relieve.ipc = ipc
 
+ipc.on('error', function(err, stack) {
+  console.error('Socket error', err, stack)
+})
+
 ipc.on('startedAt', function() {
  ipc.send('startedAt', startedAt)
 })
 
 ipc.on('$TCPEE_IDENTITY', function() {
-  ipc.send('$TCPEE_IDENTITY', process.relieve.argv[0])
+  ipc.send('$TCPEE_IDENTITY', process.relieve.containerArgs.identity)
 })
 
 ipc.on('$TCPEE_KILL', function(signal) {

@@ -1,5 +1,7 @@
 'use strict';
 const ScriptTask = require('relieve/tasks/ScriptTask')
+const Worker = require('relieve/workers/Worker')
+const CallableTask = require('relieve/tasks/CallableTask')
 const FailSafe = require('../src/index.js')
 const relieveFixturesPath = `${__dirname}/../node_modules/relieve/test/fixtures`
 const expect = require('chai').expect
@@ -9,7 +11,7 @@ let failSafety = new FailSafe({SOCKET: './e2e.sock', PERSISTENCE: './relieve.cou
 let task
 let startedAt
 
-describe('ScriptTask', function() {
+describe('e2e ScriptTask', function() {
   before(function() {
     if (existsSync('./relieve.count')) {
       fs.unlinkSync('./relieve.count')
@@ -20,6 +22,37 @@ describe('ScriptTask', function() {
     if (existsSync('./relieve.count')) {
       fs.unlinkSync('./relieve.count')
     }
+  })
+
+  it('should start a Worker', function() {
+    const worker = new Worker()
+
+    let task = new CallableTask(`${relieveFixturesPath}/arguments.js`, {
+      interfaces: [new FailSafe({SOCKET: './e2e.sock', PERSISTENCE: './relieve.count'})]
+    })
+    task.name = 'foo'
+
+    worker.add(task)
+
+    let task2 = new CallableTask(`${relieveFixturesPath}/arguments.js`, {
+      interfaces: [new FailSafe({SOCKET: './e2e.sock', PERSISTENCE: './relieve.count'})]
+    })
+    task2.name = 'bar'
+
+    worker.add(task2)
+
+    return worker.start()
+    .then(e => {
+      expect(worker.tasks.size).to.equal(2)
+
+      return worker.remove('foo')
+    })
+    .then(e => {
+      expect(worker.tasks.size).to.equal(1)
+      expect(worker.task('foo')).to.be.undefined
+
+      return worker.remove('bar')
+    })
   })
 
   it('should create a new ScriptTask', function() {
@@ -153,5 +186,21 @@ describe('ScriptTask', function() {
 
    task.arguments = [{src: 'This', dest: 'That'}, ['foo', 'bar']]
    task.start()
+  })
+
+  it('should start a callable task', function() {
+   let task = new CallableTask(`${relieveFixturesPath}/script.js`, {
+      interfaces: [failSafety]
+    })
+
+    return task.start()
+    .then(e => {
+      task.get('getMe', {foo: 'bar'})
+      .then(e => {
+        expect(e).to.deep.equal({foo: 'bar'})
+
+        return task.stop()
+      })
+    })
   })
 })

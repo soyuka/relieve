@@ -17,7 +17,7 @@ describe('group', function() {
     let server = new net.Server()
     server.listen('./group.sock')
 
-    group.on('add', function() {
+    group.on('$TCPEE_ADD:foo', function() {
       i++
     })
 

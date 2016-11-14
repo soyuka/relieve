@@ -3,7 +3,6 @@ const debug = require('debug')('relieve-failsafe:master')
 const fs = require('fs')
 const constants = require('./constants')
 
-let server = null
 let tcpeeGroup = null
 
 ;['SIGTERM', 'SIGINT'].map(e => {
@@ -13,7 +12,7 @@ let tcpeeGroup = null
 })
 
 module.exports = function(options) {
-  if (server !== null) {
+  if (tcpeeGroup !== null) {
     return Promise.resolve(tcpeeGroup)
   }
 
@@ -30,10 +29,9 @@ module.exports = function(options) {
   } catch(e) {}
 
   return TCPEEServer(options, parseInt(num.toString()))
-  .then((t, s) => {
+  .then((t) => {
     debug('master ready')
     tcpeeGroup = t
-    server = s
     return Promise.resolve(tcpeeGroup)
   })
 }

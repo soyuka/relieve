@@ -8,6 +8,10 @@ const fs = require('fs')
 
 describe('server', function() {
 
+  afterEach(function() {
+    TCPEEServer.close()
+  })
+
   it('should start without waiting for connections', function(cb) {
     TCPEEServer({SOCKET: './server.sock'})
     .then(tcpeeGroup => {
