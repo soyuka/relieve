@@ -17,6 +17,8 @@ ipc.on('usage', function() {
   ipc.send('usage', {
     cpu: cpuUsage,
     cpuPercent: cpuPercent,
-    memory: process.memoryUsage()
+    memory: process.memoryUsage(),
+    pid: process.pid,
+    uptime: process.uptime()
   })
 })
