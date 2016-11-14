@@ -80,7 +80,7 @@ Worker.prototype.add = function(task) {
  */
 Worker.prototype.remove = function(name) {
   return new Promise((resolve, reject) => {
-    let task = tasks.get(name)
+    let task = this.task(name)
 
     task.once('exit', function() {
       resolve()
@@ -136,10 +136,7 @@ Worker.prototype.kill = function(signal) {
 Worker.prototype.start = function(...args) {
   let stack = []
   for(let task of tasks.values()) {
-    task.start.apply(task, args)
-    stack.push(new Promise((resolve) => {
-      task.once('start', resolve)
-    }))
+    stack.push(task.start.apply(task, args))
   }
 
   return Promise.all(stack)
