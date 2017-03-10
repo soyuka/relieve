@@ -76,14 +76,12 @@ Different kind of Workers for different use cases. Every Worker takes one or mor
 - [QueueWorker](http://soyuka.github.io/relieve/tutorial-5-QueueWorker.html)
 - [CloudWorker](http://soyuka.github.io/relieve/tutorial-6-CloudWorker.html)
 
+### Tools
+
+- [Containers](http://soyuka.github.io/relieve/tutorial-7-Containers.html) - easy way to add ipc methods for your tasks
+- [Interfaces](http://soyuka.github.io/relieve/tutorial-8-Interfaces.html) - extends how the tasks are managed (FailSafe, Logger)
+
 ### Links
 - [Documentation](http://soyuka.github.io/relieve/)
 - [Coverage](http://soyuka.github.io/relieve/coverage/lcov-report/)
 - [Blog post](https://soyuka.me/having-fun-with-nodejs-child-processes/)
-
-### TODO
-
-- Documentation monitorable container
-- Documentation interfaces
-- Documentation logger
-- Documentation fail safe
