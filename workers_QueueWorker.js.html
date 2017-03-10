@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: workers/QueueWorker.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: workers/QueueWorker.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict'
+const util = require('util')
+const Worker = require('./Worker.js')
+const Promise = require('bluebird')
+const debug = require('debug')('relieve:seriesworker')
+
+/**
+ * A Queue Worker that process ending tasks in concurrency
+ * @module workers/QueueWorker
+ */
+
+/**
+ * @class
+ * @extends module:workers/Worker~Worker
+ * @property {Number} [concurrency=1] The concurrency value
+ */
+function QueueWorker(options) {
+  if(!(this instanceof QueueWorker)) { return new QueueWorker(options) }
+
+  if(!options)
+    options = {}
+
+  Worker.call(this, options)
+
+  if(!options.concurrency)
+    options.concurrency = 1
+
+  this.options = options
+}
+
+util.inherits(QueueWorker, Worker)
+
+/**
+ * @throws {TypeError} if task has no start method
+ */
+QueueWorker.prototype.add = function(task) {
+  if(!task.start)
+    throw new TypeError('Task must be an instance of ScriptTask or CallableTask')
+
+  Worker.prototype.add.call(this, task)
+  return this
+}
+
+Object.defineProperty(QueueWorker.prototype, 'concurrency', {
+  get: function getConcurrency() {
+    return this.options.concurrency
+  },
+  set: function setConcurrency(val) {
+    this.options.concurrency = val
+  }
+})
+
+/**
+ * Runs tasks in the stack
+ * Tasks must exit to fullfil the promise, they run in concurrency
+ * @see options.concurrency
+ * @param Task ...tasks if none provided the whole stack will run
+ * @return Promise resolves when every task exited
+ */
+QueueWorker.prototype.run = function(...args) {
+  let stack = []
+
+  if(args.length === 0)
+    stack = this.tasks.values()
+  else {
+    for(let i in args) {
+      stack.push(this.tasks.get(args[i]))
+    }
+  }
+
+  return Promise.all(stack).map(function(e) {
+    return e.start()
+    .then(() => {
+      return new Promise((resolve, reject) => {
+        debug('start task %s', e.name);
+        e.once('exit', function(code) {
+          debug('exit task %s', e.name);
+          resolve(code)
+        })
+      })
+    })
+  }, {
+    concurrency: this.options.concurrency
+  })
+}
+
+module.exports = QueueWorker
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-containers_CallableContainer.html">containers/CallableContainer</a></li><li><a href="module-containers_ScriptContainer.html">containers/ScriptContainer</a></li><li><a href="module-strategies_WeightedStrategy.html">strategies/WeightedStrategy</a></li><li><a href="module-tasks_CallableTask.html">tasks/CallableTask</a></li><li><a href="module-tasks_ForkTask.html">tasks/ForkTask</a></li><li><a href="module-tasks_ScriptTask.html">tasks/ScriptTask</a></li><li><a href="module-workers_CloudWorker.html">workers/CloudWorker</a></li><li><a href="module-workers_QueueWorker.html">workers/QueueWorker</a></li><li><a href="module-workers_Worker.html">workers/Worker</a></li></ul><h3>Classes</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html">CallableTask</a></li><li><a href="module-tasks_ForkTask-ForkTask.html">ForkTask</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html">ScriptTask</a></li><li><a href="module-workers_CloudWorker-CloudWorker.html">CloudWorker</a></li><li><a href="module-workers_QueueWorker-QueueWorker.html">QueueWorker</a></li><li><a href="module-workers_Worker-Worker.html">Worker</a></li></ul><h3>Events</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html#event:exit">exit</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html#event:exit">exit</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-ForkTask.html">1-ForkTask</a></li><li><a href="tutorial-2-ScriptTask.html">2-ScriptTask</a></li><li><a href="tutorial-3-CallableTask.html">3-CallableTask</a></li><li><a href="tutorial-4-Worker.html">4-Worker</a></li><li><a href="tutorial-5-QueueWorker.html">5-QueueWorker</a></li><li><a href="tutorial-6-CloudWorker.html">6-CloudWorker</a></li><li><a href="tutorial-7-Containers.html">7-Containers</a></li><li><a href="tutorial-8-Interfaces.html">8-Interfaces</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defineNameProperty">defineNameProperty</a></li><li><a href="global.html#listenersPropagation">listenersPropagation</a></li><li><a href="global.html#readOnly">readOnly</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 10 2017 17:52:16 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

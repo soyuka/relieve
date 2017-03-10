@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: 6-CloudWorker</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Tutorial: 6-CloudWorker</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>6-CloudWorker</h2>
+</header>
+
+<article>
+    <p>The <a href="module-workers_CloudWorker-CloudWorker.html">CloudWorker</a> does not accept ForkTasks. It will handle start/stop action, and therefore when a Task is added it must not be started.</p>
+<p>The CloudWorker differs from the QueueWorker in which it does not wait for tasks to end. It assumes that tasks should run forever, and therefore works well with the <code>autorestart</code> feature.
+Then, the CloudWorker works with a Strategy, like a Round-Robin that will give the next available task. The default Strategy is a weight strategy that increments/decrements a task-basis counter according to the number of calls the task gets.</p>
+<p>For example:</p>
+<pre class="prettyprint source"><code>var relieve = require('relieve')
+var CallableTask = relieve.tasks.CallableTask
+var CloudWorker = relieve.workers.CloudWorker
+
+var worker = new CloudWorker()
+worker.add(new CallableTask('sometask.js'))
+worker.add(new CallableTask('sometask.js'))
+
+worker.run()
+//every task has started
+.then(function() {
+  //send ping to the next available task
+  worker.get('ping')
+  //if it's a long running task, this second instruction
+  //will most likely call the second task
+  worker.get('ping')
+})</code></pre><h3>Socket task</h3><p>Here we decide to send the Socket to the next available task, to process some data and send him back the requested data.</p>
+<p>The task just handles the fibonnacci calculation, and sends the data directly to the socket.</p>
+<pre class="prettyprint source"><code>//task.js
+'use strict';
+function fibonacci(max) {
+  let x = -1;
+  let i = 0;
+  let j = 1;
+  let k = 0;
+
+  for(; k &lt; max; i = j, j = x, k++)  {
+
+    if(x > Number.MAX_SAFE_INTEGER) {
+      console.error('Fibonacci stopeed at iteration %d', k);
+      return {number: x, iterations: k, error: 'Number exceed the limit ('+Number.MAX_SAFE_INTEGER+')'}
+    }
+
+    x = i + j
+  }
+
+  return {number: x, iterations: k}
+}
+
+var socks = []
+var channel = process.relieve.ipc
+
+module.exports = {
+  start: function() {
+    channel.on('socket', function(socket) {
+      socks.push(socket)
+    })
+  },
+  doHeavyStuff: function(num) {
+    let sock = socks.shift()
+    let f = fibonacci(num)
+    if(f.error) {
+      sock.write('Fibonnacci errored with message: \n')
+      sock.write(f.error + '\n')
+      sock.end()
+      return
+    }
+
+    sock.write(`Fibonnacci result for ${num} is ${f.number}\n`)
+    sock.write(`${f.iterations} iterations done\n`)
+    sock.end()
+  }
+}</code></pre><p>The worker sends the incoming socket to one of our tasks.</p>
+<pre class="prettyprint source"><code>'use strict';
+var relieve = require('relieve')
+var CallableTask = relieve.tasks.CallableTask
+var Worker = relieve.workers.CloudWorker
+var net = require('net')
+
+const RANDOM_MIN = 1
+const RANDOM_MAX = 156 //78 iterations until Number.MAX_SAFE_INTEGER
+
+var worker = new Worker()
+
+let i = 0
+let len = 4
+for (; i &lt; len; i++) {
+  let task = new CallableTask(__dirname + '/task.js', {restart: true})
+  task.name = 'task'+i
+  worker.add(task)
+}
+
+worker.run()
+
+var server = net.createServer()
+
+server.on('connection', function(socket) {
+  //send the socket to the next available task
+  worker.send('socket', socket)
+  .then(function(task) {
+    let n = Math.floor(Math.random() * (RANDOM_MAX - RANDOM_MIN + 1)) + RANDOM_MIN
+    //call doHeavyStuff, the task will handle the response
+    task.call('doHeavyStuff', n)
+  })
+})
+
+server.listen(function() {
+  console.log('server listening on %j', server.address());
+})</code></pre><p>To test this, simply plug a telnet on the server and watch.</p>
+</article>
+
+</section>
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-containers_CallableContainer.html">containers/CallableContainer</a></li><li><a href="module-containers_ScriptContainer.html">containers/ScriptContainer</a></li><li><a href="module-strategies_WeightedStrategy.html">strategies/WeightedStrategy</a></li><li><a href="module-tasks_CallableTask.html">tasks/CallableTask</a></li><li><a href="module-tasks_ForkTask.html">tasks/ForkTask</a></li><li><a href="module-tasks_ScriptTask.html">tasks/ScriptTask</a></li><li><a href="module-workers_CloudWorker.html">workers/CloudWorker</a></li><li><a href="module-workers_QueueWorker.html">workers/QueueWorker</a></li><li><a href="module-workers_Worker.html">workers/Worker</a></li></ul><h3>Classes</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html">CallableTask</a></li><li><a href="module-tasks_ForkTask-ForkTask.html">ForkTask</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html">ScriptTask</a></li><li><a href="module-workers_CloudWorker-CloudWorker.html">CloudWorker</a></li><li><a href="module-workers_QueueWorker-QueueWorker.html">QueueWorker</a></li><li><a href="module-workers_Worker-Worker.html">Worker</a></li></ul><h3>Events</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html#event:exit">exit</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html#event:exit">exit</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-ForkTask.html">1-ForkTask</a></li><li><a href="tutorial-2-ScriptTask.html">2-ScriptTask</a></li><li><a href="tutorial-3-CallableTask.html">3-CallableTask</a></li><li><a href="tutorial-4-Worker.html">4-Worker</a></li><li><a href="tutorial-5-QueueWorker.html">5-QueueWorker</a></li><li><a href="tutorial-6-CloudWorker.html">6-CloudWorker</a></li><li><a href="tutorial-7-Containers.html">7-Containers</a></li><li><a href="tutorial-8-Interfaces.html">8-Interfaces</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defineNameProperty">defineNameProperty</a></li><li><a href="global.html#listenersPropagation">listenersPropagation</a></li><li><a href="global.html#readOnly">readOnly</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 10 2017 17:52:16 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

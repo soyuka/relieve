@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: 8-Interfaces</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Tutorial: 8-Interfaces</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>8-Interfaces</h2>
+</header>
+
+<article>
+    <p>Interfaces are tools you can use to improve your process management.</p>
+<p>For the following examples, you can use a basic <code>task.js</code>:</p>
+<pre class="prettyprint source lang-javascript"><code>// task.js
+var ipc = process.relieve.ipc
+
+module.exports = {
+  start: function() {
+    ipc.on('ping', function() {
+      ipc.send('pong')
+    })
+
+    setInterval(e => {
+      console.log('Still alive')
+    }, 1000)
+  }
+}</code></pre><h3>Logs</h3><p>For example, you may want to set up <code>relieve-logger</code> to output logs in a file and handle log rotation out of the box:</p>
+<pre class="prettyprint source"><code>npm install relieve-logger --save #you should have relieve already</code></pre><pre class="prettyprint source lang-javascript"><code>// worker.js
+var Logger = require('relieve-logger')
+var ScriptTask = require('relieve/tasks/ScriptTask')
+
+var logger = new Logger(`logs/out.log`, `logs/err.log`, {delay: '1d'}) // creates a logger that rotates files every day
+
+var task = new ScriptTask('task.js', {
+  interfaces: [logger]
+})</code></pre><p>Yes, that's all you need to do so that <code>task.js</code> outputs its logs in <code>logs/out|err.log</code> with file rotation!</p>
+<h3>FailSafe</h3><p>Now, with <code>relieve</code>, we're in a world where there is a Worker (Master) and one or more Tasks (Child). You may be wondering what happens to your Task if the Worker exits. Well, as we use IPC by default, and that the child process is not detached, the Task will also die.</p>
+<p>This may be a problem, especially if the Task is way more important then the worker. Usually the worker is only there to manage the tasks, and the task should have no trouble working without the worker.</p>
+<p>For this to work, let me introduce the <code>FailSafe</code> interface. Instead of using the IPC protocol, it transparently replaces it by a TCP protocol having the same API.</p>
+<p>First let's install the <code>FailSafe</code> interface:</p>
+<pre class="prettyprint source"><code>npm install relieve-failsafe --save</code></pre><p>To use this, simply add the interface:</p>
+<pre class="prettyprint source lang-javascript"><code>// worker.js
+var CallableTask = require('relieve/tasks/ScriptTask')
+var FailSafe = require('relieve-failsafe')
+
+var task = new ScriptTask('task.js', {
+  interfaces: [new FailSafe()]
+})
+
+task.start()
+.then(() => {
+  task.on('pong', () => console.log('got pong'))
+
+  task.call('ping')
+})</code></pre><p>Now launch the <code>worker.js</code> script, your task is up. Kill the worker, the task is still up. Restart the worker, it'll re-attach the task.</p>
+<blockquote>
+<p>But wait, how do I kill my task now?</p>
+</blockquote>
+<p>Just use <code>task.stop()</code> from the worker:</p>
+<pre class="prettyprint source lang-javascript"><code>task.stop()</code></pre><h3>Combine everything</h3><p>A more complex example sets up a full-featured task with automatic logging, master-independent and a method to get usage data:</p>
+<pre class="prettyprint source lang-javascript"><code>var CallableTask = require('relieve/tasks/ScriptTask')
+var Logger = require('relieve-logger')
+var FailSafe = require('relieve-failsafe')
+var monitorContainer = require.resolve('relieve/containers/MonitorContainer')
+
+var logger = new Logger('out.log', 'err.log')
+var failSafety = new FailSafe()
+
+var t = new CallableTask(task.script, {
+  interfaces: [logger, failSafety],
+  childprocess: {
+    env: {
+      SOME_ENV_VARIABLE: 'foobar'
+    }
+  },
+  containers: [monitorContainer],
+  restart: true
+})</code></pre>
+</article>
+
+</section>
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-containers_CallableContainer.html">containers/CallableContainer</a></li><li><a href="module-containers_ScriptContainer.html">containers/ScriptContainer</a></li><li><a href="module-strategies_WeightedStrategy.html">strategies/WeightedStrategy</a></li><li><a href="module-tasks_CallableTask.html">tasks/CallableTask</a></li><li><a href="module-tasks_ForkTask.html">tasks/ForkTask</a></li><li><a href="module-tasks_ScriptTask.html">tasks/ScriptTask</a></li><li><a href="module-workers_CloudWorker.html">workers/CloudWorker</a></li><li><a href="module-workers_QueueWorker.html">workers/QueueWorker</a></li><li><a href="module-workers_Worker.html">workers/Worker</a></li></ul><h3>Classes</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html">CallableTask</a></li><li><a href="module-tasks_ForkTask-ForkTask.html">ForkTask</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html">ScriptTask</a></li><li><a href="module-workers_CloudWorker-CloudWorker.html">CloudWorker</a></li><li><a href="module-workers_QueueWorker-QueueWorker.html">QueueWorker</a></li><li><a href="module-workers_Worker-Worker.html">Worker</a></li></ul><h3>Events</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html#event:exit">exit</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html#event:exit">exit</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-ForkTask.html">1-ForkTask</a></li><li><a href="tutorial-2-ScriptTask.html">2-ScriptTask</a></li><li><a href="tutorial-3-CallableTask.html">3-CallableTask</a></li><li><a href="tutorial-4-Worker.html">4-Worker</a></li><li><a href="tutorial-5-QueueWorker.html">5-QueueWorker</a></li><li><a href="tutorial-6-CloudWorker.html">6-CloudWorker</a></li><li><a href="tutorial-7-Containers.html">7-Containers</a></li><li><a href="tutorial-8-Interfaces.html">8-Interfaces</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defineNameProperty">defineNameProperty</a></li><li><a href="global.html#listenersPropagation">listenersPropagation</a></li><li><a href="global.html#readOnly">readOnly</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 10 2017 17:52:16 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

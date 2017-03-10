@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h2>Relieve <a href="https://codeclimate.com/github/soyuka/relieve/coverage"><img src="https://codeclimate.com/github/soyuka/relieve/badges/coverage.svg" alt="Test Coverage"></a> <a href="https://codeclimate.com/github/soyuka/relieve"><img src="https://codeclimate.com/github/soyuka/relieve/badges/gpa.svg" alt="Code Climate"></a> <a href="https://travis-ci.org/soyuka/relieve"><img src="https://travis-ci.org/soyuka/relieve.svg?branch=master" alt="Build Status"></a> <a href="https://ci.appveyor.com/project/soyuka/relieve"><img src="https://ci.appveyor.com/api/projects/status/kixnoqeg0tntgaad?svg=true" alt="Build status"></a></h2><p>The goal of this library is to ease the implementation of multi processing accross your existing microservices.
+Relieve aims to give a reusable design pattern using process forks. It also eases communication with child processes with an high-level abstraction.</p>
+<p>For example, with a CallableTask:</p>
+<pre class="prettyprint source lang-javascript"><code>//task.js
+//just export a module in the child process
+module.exports = {
+  print: (str) => {
+    console.log(str)
+  },
+  data: () => {
+    //return some async data
+    return Promise.resolve({foo: 'bar'})
+  }
+}</code></pre><p>Then from your master, just call the task:</p>
+<pre class="prettyprint source lang-javascript"><code>//worker.js
+var CallableTask = require('relieve/tasks/CallableTask')
+var task = new CallableTask('task.js')
+
+task.start()
+.then(() => {
+  task.call('print', 'hello world')
+  return task.get('data')
+})
+.then(d => {
+  //d is {foo: 'bar'}
+})</code></pre><h3>The design pattern</h3><p>Relieve is based on a design pattern containing:</p>
+<ul>
+<li>A Worker</li>
+<li>One or more tasks</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/soyuka/relieve/master/examples/images/relieve.jpg" alt=""></p>
+<p>The task can be used without a Worker, but the Worker helps managing workflows.</p>
+<h3>Task</h3><p>The task will implement a child process using <code>fork</code>. It'll make sure that there is an ipc channel open so that Workers and Tasks can communicate.
+There are different tasks implementations:</p>
+<ul>
+<li>Fork Task - simply transforms a <code>ChildProcess.fork</code> in a Task</li>
+<li>Script Task - wraps a script path in a container that is managed through <code>ChildProcess.fork</code>. It gives the ability to start, restart or kill a Task</li>
+<li>Callable Task - this is a Script Task with convenience methods to <code>call</code> or <code>get</code> script methods remotely</li>
+</ul>
+<h4>Tutorials:</h4><ul>
+<li><a href="http://soyuka.github.io/relieve/tutorial-1-ForkTask.html">Fork Task</a></li>
+<li><a href="http://soyuka.github.io/relieve/tutorial-2-ScriptTask.html">Script Task</a></li>
+<li><a href="http://soyuka.github.io/relieve/tutorial-3-CallableTask.html">Callable Task</a></li>
+</ul>
+<h3>Worker</h3><p>Different kind of Workers for different use cases. Every Worker takes one or more tasks and handles them.</p>
+<ul>
+<li>Worker - it's a basic worker. Helps sending a message to every task.</li>
+<li>QueueWorker - process tasks one after the other, or in concurrency. Waits for a Task to exit before it consider's it as done.</li>
+<li>CloudWorker - does not wait for tasks to exit and process them through a Strategy (ie: RoundRobin)</li>
+</ul>
+<h4>Tutorials:</h4><ul>
+<li><a href="http://soyuka.github.io/relieve/tutorial-4-Worker.html">Worker</a></li>
+<li><a href="http://soyuka.github.io/relieve/tutorial-5-QueueWorker.html">QueueWorker</a></li>
+<li><a href="http://soyuka.github.io/relieve/tutorial-6-CloudWorker.html">CloudWorker</a></li>
+</ul>
+<h3>Tools</h3><ul>
+<li><a href="http://soyuka.github.io/relieve/tutorial-7-Containers.html">Containers</a> - easy way to add ipc methods for your tasks</li>
+<li><a href="http://soyuka.github.io/relieve/tutorial-8-Interfaces.html">Interfaces</a> - extends how the tasks are managed (FailSafe, Logger)</li>
+</ul>
+<h3>Links</h3><ul>
+<li><a href="http://soyuka.github.io/relieve/">Documentation</a></li>
+<li><a href="http://soyuka.github.io/relieve/coverage/lcov-report/">Coverage</a></li>
+<li><a href="https://soyuka.me/having-fun-with-nodejs-child-processes/">Blog post</a></li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-containers_CallableContainer.html">containers/CallableContainer</a></li><li><a href="module-containers_ScriptContainer.html">containers/ScriptContainer</a></li><li><a href="module-strategies_WeightedStrategy.html">strategies/WeightedStrategy</a></li><li><a href="module-tasks_CallableTask.html">tasks/CallableTask</a></li><li><a href="module-tasks_ForkTask.html">tasks/ForkTask</a></li><li><a href="module-tasks_ScriptTask.html">tasks/ScriptTask</a></li><li><a href="module-workers_CloudWorker.html">workers/CloudWorker</a></li><li><a href="module-workers_QueueWorker.html">workers/QueueWorker</a></li><li><a href="module-workers_Worker.html">workers/Worker</a></li></ul><h3>Classes</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html">CallableTask</a></li><li><a href="module-tasks_ForkTask-ForkTask.html">ForkTask</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html">ScriptTask</a></li><li><a href="module-workers_CloudWorker-CloudWorker.html">CloudWorker</a></li><li><a href="module-workers_QueueWorker-QueueWorker.html">QueueWorker</a></li><li><a href="module-workers_Worker-Worker.html">Worker</a></li></ul><h3>Events</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html#event:exit">exit</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html#event:exit">exit</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-ForkTask.html">1-ForkTask</a></li><li><a href="tutorial-2-ScriptTask.html">2-ScriptTask</a></li><li><a href="tutorial-3-CallableTask.html">3-CallableTask</a></li><li><a href="tutorial-4-Worker.html">4-Worker</a></li><li><a href="tutorial-5-QueueWorker.html">5-QueueWorker</a></li><li><a href="tutorial-6-CloudWorker.html">6-CloudWorker</a></li><li><a href="tutorial-7-Containers.html">7-Containers</a></li><li><a href="tutorial-8-Interfaces.html">8-Interfaces</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defineNameProperty">defineNameProperty</a></li><li><a href="global.html#listenersPropagation">listenersPropagation</a></li><li><a href="global.html#readOnly">readOnly</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 10 2017 17:52:16 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

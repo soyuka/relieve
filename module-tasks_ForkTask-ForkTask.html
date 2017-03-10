@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: ForkTask</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: ForkTask</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            <span class="ancestors"><a href="module-tasks_ForkTask.html">tasks/ForkTask</a>~</span>ForkTask</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+
+    <h4 class="name" id="ForkTask"><span class="type-signature"></span>new ForkTask<span class="signature">(fork)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fork</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Childprocess#fork</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a forked script</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    uuid.v4()
+                
+                </td>
+            
+
+            <td class="description last"><p>the task name</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tasks_ForkTask.js.html">tasks/ForkTask.js</a>, <a href="tasks_ForkTask.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="kill"><span class="type-signature"></span>kill<span class="signature">(signal)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Wrapper to child_process.kill(signal)
+<a href="https://nodejs.org/api/process.html#process_process_kill_pid_signal">https://nodejs.org/api/process.html#process_process_kill_pid_signal</a></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>signal</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="tasks_ForkTask.js.html">tasks/ForkTask.js</a>, <a href="tasks_ForkTask.js.html#line32">line 32</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>void</p>
+</div>
+
+
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-containers_CallableContainer.html">containers/CallableContainer</a></li><li><a href="module-containers_ScriptContainer.html">containers/ScriptContainer</a></li><li><a href="module-strategies_WeightedStrategy.html">strategies/WeightedStrategy</a></li><li><a href="module-tasks_CallableTask.html">tasks/CallableTask</a></li><li><a href="module-tasks_ForkTask.html">tasks/ForkTask</a></li><li><a href="module-tasks_ScriptTask.html">tasks/ScriptTask</a></li><li><a href="module-workers_CloudWorker.html">workers/CloudWorker</a></li><li><a href="module-workers_QueueWorker.html">workers/QueueWorker</a></li><li><a href="module-workers_Worker.html">workers/Worker</a></li></ul><h3>Classes</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html">CallableTask</a></li><li><a href="module-tasks_ForkTask-ForkTask.html">ForkTask</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html">ScriptTask</a></li><li><a href="module-workers_CloudWorker-CloudWorker.html">CloudWorker</a></li><li><a href="module-workers_QueueWorker-QueueWorker.html">QueueWorker</a></li><li><a href="module-workers_Worker-Worker.html">Worker</a></li></ul><h3>Events</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html#event:exit">exit</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html#event:exit">exit</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-ForkTask.html">1-ForkTask</a></li><li><a href="tutorial-2-ScriptTask.html">2-ScriptTask</a></li><li><a href="tutorial-3-CallableTask.html">3-CallableTask</a></li><li><a href="tutorial-4-Worker.html">4-Worker</a></li><li><a href="tutorial-5-QueueWorker.html">5-QueueWorker</a></li><li><a href="tutorial-6-CloudWorker.html">6-CloudWorker</a></li><li><a href="tutorial-7-Containers.html">7-Containers</a></li><li><a href="tutorial-8-Interfaces.html">8-Interfaces</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defineNameProperty">defineNameProperty</a></li><li><a href="global.html#listenersPropagation">listenersPropagation</a></li><li><a href="global.html#readOnly">readOnly</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 10 2017 17:52:16 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

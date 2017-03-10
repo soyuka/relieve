@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: 7-Containers</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Tutorial: 7-Containers</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>7-Containers</h2>
+</header>
+
+<article>
+    <p>Containers are surrounding your process, therefore they're really useful if you want to give your processes access to global remote methods.</p>
+<p>A perfect example is to leverage the new <code>process.cpuUsage</code>, 'process.memoryUsage' or <code>process.uptime()</code>. For this, there is a <code>MonitorContainer</code> you can use in any task:</p>
+<pre class="prettyprint source lang-javascript"><code>
+var CallableTask = require('relieve/tasks/CallableTask')
+var monitorContainer = require.resolve('relieve/containers/MonitorContainer') //gives the module path
+
+var task = new CallableTask('task.js', {
+  containers: [
+      monitorContainer
+  ]
+})
+
+task.start()
+.then(function() {
+    task.once('usage', function(usage) {
+    console.log(usage)
+
+    /**
+     * The usage object has the following data:
+     *
+     * {
+     *   cpu: process.cpuUsage(),
+     *   cpuPercent: 100, // percent usage computed through hrtime
+     *   memory: process.memoryUsage(),
+     *   pid: process.pid,
+     *   uptime: process.uptime()
+     * }
+     *
+     */
+
+  })
+
+    task.send('usage')
+})</code></pre><p>Container are scripts that are required before your script task. They can (and should) use the available <code>process.relieve.ipc</code> communication channel.</p>
+<p>It's a great way to abstract things you'd need in every tasks. As this is a simple script, that doesn't need any <code>exports</code> you can add your own without breaking anything on relieve internals. For example, the <code>MonitorContainer</code> code is pretty straightforward:</p>
+<pre class="prettyprint source lang-javascript"><code>// Relieve has not been loaded, load it
+if (!process.relieve) {
+  require('./CallableContainer.js') //can also be 'relieve/containers/CallableContainer'
+}
+
+const os = require('os')
+const ipc = process.relieve.ipc
+
+let cpuUsage
+let time
+
+ipc.on('usage', function() {
+  cpuUsage = process.cpuUsage(cpuUsage)
+  time = process.hrtime(time)
+
+  let cpuPercent = (100 * (cpuUsage.system / 1000 + cpuUsage.user / 1000) / (time[0] * 1000 + time[1] / 1e6))
+
+  ipc.send('usage', {
+    cpu: cpuUsage,
+    cpuPercent: cpuPercent,
+    memory: process.memoryUsage(),
+    pid: process.pid,
+    uptime: process.uptime()
+  })
+})</code></pre>
+</article>
+
+</section>
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-containers_CallableContainer.html">containers/CallableContainer</a></li><li><a href="module-containers_ScriptContainer.html">containers/ScriptContainer</a></li><li><a href="module-strategies_WeightedStrategy.html">strategies/WeightedStrategy</a></li><li><a href="module-tasks_CallableTask.html">tasks/CallableTask</a></li><li><a href="module-tasks_ForkTask.html">tasks/ForkTask</a></li><li><a href="module-tasks_ScriptTask.html">tasks/ScriptTask</a></li><li><a href="module-workers_CloudWorker.html">workers/CloudWorker</a></li><li><a href="module-workers_QueueWorker.html">workers/QueueWorker</a></li><li><a href="module-workers_Worker.html">workers/Worker</a></li></ul><h3>Classes</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html">CallableTask</a></li><li><a href="module-tasks_ForkTask-ForkTask.html">ForkTask</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html">ScriptTask</a></li><li><a href="module-workers_CloudWorker-CloudWorker.html">CloudWorker</a></li><li><a href="module-workers_QueueWorker-QueueWorker.html">QueueWorker</a></li><li><a href="module-workers_Worker-Worker.html">Worker</a></li></ul><h3>Events</h3><ul><li><a href="module-tasks_CallableTask-CallableTask.html#event:exit">exit</a></li><li><a href="module-tasks_ScriptTask-ScriptTask.html#event:exit">exit</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-ForkTask.html">1-ForkTask</a></li><li><a href="tutorial-2-ScriptTask.html">2-ScriptTask</a></li><li><a href="tutorial-3-CallableTask.html">3-CallableTask</a></li><li><a href="tutorial-4-Worker.html">4-Worker</a></li><li><a href="tutorial-5-QueueWorker.html">5-QueueWorker</a></li><li><a href="tutorial-6-CloudWorker.html">6-CloudWorker</a></li><li><a href="tutorial-7-Containers.html">7-Containers</a></li><li><a href="tutorial-8-Interfaces.html">8-Interfaces</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defineNameProperty">defineNameProperty</a></li><li><a href="global.html#listenersPropagation">listenersPropagation</a></li><li><a href="global.html#readOnly">readOnly</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Mar 10 2017 17:52:16 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
