@@ -50,7 +50,7 @@ task.start()
     console.log('got pong!')
   })
 
-  task.call('ping')
+  task.send('ping')
 })
 ```
 
