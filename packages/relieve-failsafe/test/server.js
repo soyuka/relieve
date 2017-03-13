@@ -6,23 +6,27 @@ const expect = require('chai').expect
 const existsSync = require('@soyuka/exists-sync')
 const fs = require('fs')
 
+const os = require('os').platform()
+const SOCKET = os === 'win32' ? `\\\\?\\pipe\\${__dirname}\\server.sock`: `${__dirname}/server.sock`
+
 describe('server', function() {
 
   afterEach(function() {
-    TCPEEServer.close()
+    return TCPEEServer.close()
   })
 
   it('should start without waiting for connections', function(cb) {
-    TCPEEServer({SOCKET: './server.sock'})
+    TCPEEServer({SOCKET: SOCKET})
     .then(tcpeeGroup => {
       expect(tcpeeGroup).to.be.an.instanceof(TCPEEGroup)
       expect(tcpeeGroup.clients.size).to.equal(0)
+
       cb()
     })
   })
 
   it('should wait for a socket entry before resolving', function(cb) {
-    TCPEEServer({SOCKET: './server.sock'}, 1)
+    TCPEEServer({SOCKET: SOCKET}, 1)
     .then(tcpeeGroup => {
       expect(tcpeeGroup).to.be.an.instanceof(TCPEEGroup)
       expect(tcpeeGroup.get('foo')).to.be.an.instanceof(TCPEE)
@@ -38,14 +42,14 @@ describe('server', function() {
     })
 
     function connect() {
-      socket.connect('./server.sock')
+      socket.connect(SOCKET)
     }
 
     connect()
   })
 
   it('should timeout because socket is not there', function(cb) {
-    TCPEEServer({SOCKET: './server.sock', TIMEOUT: 100}, 1)
+    TCPEEServer({SOCKET: SOCKET, TIMEOUT: 100}, 1)
     .then(tcpeeGroup => {
       expect(tcpeeGroup).to.be.an.instanceof(TCPEEGroup)
       expect(tcpeeGroup.clients.size).to.equal(0)
@@ -54,8 +58,8 @@ describe('server', function() {
   })
 
   after(function() {
-    if (existsSync('./server.sock')) {
-      fs.unlinkSync('./server.sock')
+    if (os !== 'win32' && existsSync(SOCKET)) {
+      fs.unlinkSync(SOCKET)
     }
   })
 })

@@ -7,7 +7,11 @@ const relieveFixturesPath = `${__dirname}/../node_modules/relieve/test/fixtures`
 const expect = require('chai').expect
 const existsSync = require('@soyuka/exists-sync')
 const fs = require('fs')
-let failSafety = new FailSafe({SOCKET: './e2e.sock', PERSISTENCE: './relieve.count'})
+
+const os = require('os').platform()
+const SOCKET = os === 'win32' ? `\\\\?\\pipe\\${__dirname}\\e2e.sock`: `./e2e.sock`
+
+let failSafety = new FailSafe({SOCKET: SOCKET, PERSISTENCE: './relieve.count'})
 let task
 let startedAt
 
@@ -28,14 +32,14 @@ describe('e2e ScriptTask', function() {
     const worker = new Worker()
 
     let task = new CallableTask(`${relieveFixturesPath}/arguments.js`, {
-      interfaces: [new FailSafe({SOCKET: './e2e.sock', PERSISTENCE: './relieve.count'})]
+      interfaces: [new FailSafe({SOCKET: SOCKET, PERSISTENCE: './relieve.count'})]
     })
     task.name = 'foo'
 
     worker.add(task)
 
     let task2 = new CallableTask(`${relieveFixturesPath}/arguments.js`, {
-      interfaces: [new FailSafe({SOCKET: './e2e.sock', PERSISTENCE: './relieve.count'})]
+      interfaces: [new FailSafe({SOCKET: SOCKET, PERSISTENCE: './relieve.count'})]
     })
     task2.name = 'bar'
 
@@ -195,7 +199,7 @@ describe('e2e ScriptTask', function() {
 
     return task.start()
     .then(e => {
-      task.get('getMe', {foo: 'bar'})
+      return task.get('getMe', {foo: 'bar'})
       .then(e => {
         expect(e).to.deep.equal({foo: 'bar'})
 

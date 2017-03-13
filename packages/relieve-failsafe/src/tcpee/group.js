@@ -22,6 +22,7 @@ TCPEEGroup.prototype.add = function(sock) {
   })
 
   tcpee.on('error', function(error, stack) {
+    console.error('Got an error on the remote TCPEE socket')
     console.error(error, stack)
   })
 
@@ -43,6 +44,12 @@ TCPEEGroup.prototype.get = function(identity) {
 TCPEEGroup.prototype.ready = function() {
   this._ready = true
   this.emit('ready')
+}
+
+TCPEEGroup.prototype.destroy = function() {
+  for (let [key, value] of this.clients) {
+    value.client.destroy()
+  }
 }
 
 module.exports = TCPEEGroup

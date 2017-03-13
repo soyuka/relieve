@@ -3,6 +3,7 @@ const fs = require('fs')
 const existsSync = require('@soyuka/exists-sync')
 const TCPEEGroup = require('./group')
 const debug = require('debug')('relieve-failsafe:server')
+const os = require('os').platform()
 const constants = require('../constants')
 let connectionsNumber = 0
 let timedOut = false
@@ -48,7 +49,7 @@ function TCPEEServer(options, waitingForNumber = 0) {
   options = constants(options)
 
   //this has to block and throw if the socket is open
-  if (existsSync(options.SOCKET)) {
+  if (os !== 'win32' && existsSync(options.SOCKET)) {
     fs.unlinkSync(options.SOCKET)
   }
 
@@ -56,7 +57,6 @@ function TCPEEServer(options, waitingForNumber = 0) {
 
   server = new Server()
   server.listen(options.SOCKET)
-
   tcpee = new TCPEEGroup(options)
 
   return new Promise((resolve, reject) => {
@@ -90,7 +90,12 @@ function TCPEEServer(options, waitingForNumber = 0) {
 }
 
 TCPEEServer.close = function() {
+  tcpee.destroy()
   tcpee = null
+
+  return new Promise((resolve, reject) => {
+    server.close(resolve)
+  })
 }
 
 module.exports = TCPEEServer

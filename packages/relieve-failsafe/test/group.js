@@ -5,17 +5,20 @@ const fs = require('fs')
 const TCPEEGroup = require('../src/tcpee/group')
 const TCPEE = require('tcpee')
 
+const os = require('os').platform()
+const SOCKET = os === 'win32' ? `\\\\?\\pipe\\${__dirname}\\group.sock`: `${__dirname}/group.sock`
+
 describe('group', function() {
   it('should add a tcpee', function(cb) {
     const group = new TCPEEGroup()
     let i = 0
 
-    if (existsSync('./group.sock')) {
-      fs.unlinkSync('./group.sock')
+    if (os !== 'win32' && existsSync(SOCKET)) {
+      fs.unlinkSync(SOCKET)
     }
 
     let server = new net.Server()
-    server.listen('./group.sock')
+    server.listen(SOCKET)
 
     group.on('$TCPEE_ADD:foo', function() {
       i++
@@ -41,12 +44,12 @@ describe('group', function() {
      client.send('$TCPEE_IDENTITY', 'foo')
     })
 
-    socket.connect('./group.sock')
+    socket.connect(SOCKET)
   })
 
   after(function() {
-    if (existsSync('./group.sock')) {
-      fs.unlinkSync('./group.sock')
+    if (os !== 'win32' && existsSync(SOCKET)) {
+      fs.unlinkSync(SOCKET)
     }
   })
 })

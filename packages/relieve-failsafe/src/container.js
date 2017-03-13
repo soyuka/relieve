@@ -12,7 +12,7 @@ function connect() {
 const socket = new Socket({allowHalfOpen: true})
 
 socket.on('error', function(e) {
-  if (e.code === 'ENOENT') {
+  if (e.code === 'ENOENT' || e.code === 'ECONNRESET' || e.code === 'ECONNREFUSED') {
     setTimeout(connect, 1000)
   }
 })
