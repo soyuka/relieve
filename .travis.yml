@@ -4,10 +4,14 @@ branches:
     - master
 node_js:
    - "6"
+   - "7"
 matrix:
   fast_finish: true
 before_script:
-  - npm i -g istanbul codeclimate-test-reporter mocha
+  - npm i -g istanbul codeclimate-test-reporter mocha lerna
+script:
+  - lerna bootstrap
+  - lerna run test
 sudo: false
 after_script:
   - istanbul cover _mocha

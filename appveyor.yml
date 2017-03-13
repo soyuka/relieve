@@ -6,7 +6,9 @@ environment:
 
 install:
   - ps: Install-Product node $env:nodejs_version
-  - npm install
+  - npm install lerna -g
+  - lerna bootstrap
+  - lerna run test
 test_script:
   - node --version
   - npm --version
