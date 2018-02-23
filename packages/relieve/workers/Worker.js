@@ -33,13 +33,24 @@ const tasks = new Map()
  * @return {Promise} resolves when every task received the message
  */
 Worker.prototype.send = function(...args) {
-  let stack = []
+  const stack = []
 
-  for(let task of tasks.values()) {
+  for(const task of tasks.values()) {
     stack.push(new Promise((resolve, reject) => {
-      let a = args.slice(0) //clone arguments
-      a.push(resolve) //adds the resolve callback
-      task.send.apply(task, a)
+      const ready = () => {
+        task.send.apply(task, args)
+          // resolve after the task has sent the message
+          .then(resolve)
+          .catch(reject)
+      }
+
+      // if the task is already running then run the function
+      if (task.running) {
+        ready()
+      } else {
+        // if it's not running yet then run it when the task starts
+        task.once('start', ready)
+      }
     }))
   }
 
