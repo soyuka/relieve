@@ -1,6 +1,6 @@
 {
   "name": "relieve-failsafe",
-  "version": "1.0.2",
+  "version": "2.2.2",
   "description": "Relieve Fail Safe interface",
   "main": "src/index.js",
   "scripts": {
@@ -24,10 +24,10 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.0.2",
-    "relieve": "^2.2.1"
+    "relieve": "^2.2.2"
   },
   "peerDependencies": {
-    "relieve": "^2.2.1"
+    "relieve": "^2.2.2"
   },
   "dependencies": {
     "@soyuka/exists-sync": "^1.0.1",

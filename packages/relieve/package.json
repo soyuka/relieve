@@ -1,6 +1,6 @@
 {
   "name": "relieve",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Ease the implementation of multi processing accross your microservices",
   "main": "index.js",
   "scripts": {
