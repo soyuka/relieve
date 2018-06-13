@@ -19,14 +19,8 @@ const debug = require('debug')('relieve:worker')
 function Worker(options) {
   if(!(this instanceof Worker)) { return new Worker(options) }
   if(!options) { options = {} }
+  this._tasks = new Map()
 }
-
-/**
- * Memory tasks holder
- * @member Map
- * @static
- */
-const tasks = new Map()
 
 /**
  * send a message on every task
@@ -35,7 +29,7 @@ const tasks = new Map()
 Worker.prototype.send = function(...args) {
   let stack = []
 
-  for(let task of tasks.values()) {
+  for(let task of this._tasks.values()) {
     stack.push(new Promise((resolve, reject) => {
       let a = args.slice(0) //clone arguments
       a.push(resolve) //adds the resolve callback
@@ -52,9 +46,10 @@ Worker.prototype.send = function(...args) {
  * @return {Function} The listener that deletes an ended task
  */
 Worker.prototype.onExit = function(name) {
+  const self = this
   return function(code) {
     debug('Task %s exit with code %d', name, code)
-    tasks.delete(name)
+    self._tasks.delete(name)
   }
 }
 
@@ -68,7 +63,7 @@ Worker.prototype.onExit = function(name) {
 Worker.prototype.add = function(task) {
   task.once('exit', this.onExit(task.name))
 
-  tasks.set(task.name, task)
+  this._tasks.set(task.name, task)
 
   return this
 }
@@ -97,7 +92,9 @@ Worker.prototype.remove = function(name) {
  * @param {String} name
  * @return {Task}
  */
-Worker.prototype.task = (name) => tasks.get(name)
+Worker.prototype.task = function (name) {
+  return this._tasks.get(name)
+}
 
 /**
  * Get the tasks Set
@@ -105,13 +102,13 @@ Worker.prototype.task = (name) => tasks.get(name)
  */
 
 readOnly(Worker, 'tasks', function() {
-  return tasks
+  return this._tasks
 })
 
 listenersPropagation(Worker, function replicateListener(method) {
   return function() {
     debug('Register event %s on task', method)
-    for(let task of tasks.values()) {
+    for(let task of this._tasks.values()) {
       task[method].apply(task, arguments)
     }
   }
@@ -123,7 +120,7 @@ listenersPropagation(Worker, function replicateListener(method) {
  * @see ChildProcess#signal
  */
 Worker.prototype.kill = function(signal) {
-  for(let task of tasks.values()) {
+  for(let task of this._tasks.values()) {
     task.kill(signal)
   }
 }
@@ -135,7 +132,7 @@ Worker.prototype.kill = function(signal) {
  */
 Worker.prototype.start = function(...args) {
   let stack = []
-  for(let task of tasks.values()) {
+  for(let task of this._tasks.values()) {
     stack.push(task.start.apply(task, args))
   }
 

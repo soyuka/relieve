@@ -28,11 +28,11 @@ describe('Worker', function(cb) {
   })
 
   it('should send a message to every task', function() {
-    return worker.send('message', 'hello') 
+    return worker.send('message', 'hello')
   })
 
   it('should remove task', function() {
-    return worker.remove('test')     
+    return worker.remove('test')
     .then(function() {
       expect(worker.task('test')).to.be.undefined
       expect(worker.tasks.size).to.equal(1)
@@ -50,10 +50,10 @@ describe('Worker', function(cb) {
 
   it('should not be able to set tasks', function() {
     try {
-     worker.tasks = {} 
+     worker.tasks = {}
     } catch(e) {
-      expect(e).to.be.an.instanceof(ReferenceError) 
-      expect(e.message).to.equal('Property is read-only') 
+      expect(e).to.be.an.instanceof(ReferenceError)
+      expect(e.message).to.equal('Property is read-only')
     }
   })
 })
