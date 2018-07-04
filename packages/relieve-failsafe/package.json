@@ -4,7 +4,7 @@
   "description": "Relieve Fail Safe interface",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha -b test/index.js"
+    "test": "mocha -b test/index.js --exit"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
   "homepage": "https://github.com/soyuka/relieve-failsafe#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^3.0.2",
+    "mocha": "^5.2.0",
     "relieve": "^2.2.2"
   },
   "peerDependencies": {

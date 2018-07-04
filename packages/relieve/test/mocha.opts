@@ -1,2 +1,3 @@
 --reporter spec
 --require test/tools/global.js
+--exit
