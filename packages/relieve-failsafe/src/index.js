@@ -22,7 +22,7 @@ FailSafe.prototype.attach = function(task) {
   task.kill = (signal) => {
     return new Promise((resolve, reject) => {
       if (!task.channel) {
-        console.error('Task %s not running.', task.name)
+        debug('Task %s not running.', task.name)
         return resolve()
       }
 
