@@ -1,6 +1,6 @@
 {
   "name": "relieve-logger",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Relieve Logger interface",
   "main": "index.js",
   "scripts": {
