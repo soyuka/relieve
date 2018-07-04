@@ -3,8 +3,8 @@ branches:
   only:
     - master
 node_js:
-   - "6"
-   - "7"
+   - "8"
+   - "10"
 matrix:
   fast_finish: true
 before_script:
@@ -14,5 +14,5 @@ script:
   - lerna run test
 sudo: false
 after_script:
-  - istanbul cover _mocha
+  - istanbul cover _mocha -- --exit
   - codeclimate-test-reporter < ./coverage/lcov.info
