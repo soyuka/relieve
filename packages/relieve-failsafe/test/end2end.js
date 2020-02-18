@@ -119,8 +119,8 @@ describe('e2e ScriptTask', function() {
 
   it('should stop and not restart', function(cb) {
     setTimeout(() => {
-      task.once('exit', cb)
-      task.once('restart', cb)
+      task.once('exit', () => cb())
+      task.once('restart', () => cb())
 
       task.stop()
       .then(() => {})
